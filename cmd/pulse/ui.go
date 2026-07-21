@@ -8,20 +8,20 @@ const uiHTML = `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>pulse</title>
 <style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
-  --bg: #0a0c0f;
-  --surface: #11151a;
-  --border: #1a1d23;
-  --border-hi: #2a2d33;
-  --text: #e8ecf0;
-  --text-mid: #8b95a0;
-  --text-low: #4a5560;
+  --bg: #0a0a0a;
+  --surface: #111;
+  --surface-hi: #181818;
+  --border: #1a1a1a;
+  --border-hi: #2a2a2a;
+  --text: #e5e5e5;
+  --text-mid: #999;
+  --text-low: #555;
   --accent: #22c55e;
   --urgent: #ef4444;
   --important: #f59e0b;
-  --noise: #4a5560;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
 body {
   background: var(--bg);
   color: var(--text);
@@ -30,10 +30,10 @@ body {
   line-height: 1.6;
   min-height: 100vh;
 }
-.app { max-width: 720px; margin: 0 auto; padding: 48px 20px 80px; }
-.header { margin-bottom: 48px; }
+.app { max-width: 680px; margin: 0 auto; padding: 56px 24px 80px; }
+.header { margin-bottom: 40px; }
 .logo {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 800;
   letter-spacing: -0.5px;
   color: var(--text);
@@ -43,34 +43,34 @@ body {
   font-size: 14px;
   margin-top: 4px;
 }
-.badges { display: flex; gap: 6px; flex-wrap: wrap; margin: 20px 0 32px; }
+.badges { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 40px; }
 .badge {
-  padding: 3px 10px;
-  border-radius: 3px;
+  padding: 4px 12px;
+  border-radius: 4px;
   font-size: 12px;
   background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text-low);
-  font-family: 'SF Mono', Monaco, monospace;
 }
 .badge.on {
   color: var(--accent);
-  border-color: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.3);
+  background: rgba(34, 197, 94, 0.05);
 }
-.section { margin-bottom: 32px; }
+.section { margin-bottom: 36px; }
 .section-label {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 2px;
   color: var(--text-low);
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 .input-row {
   display: flex;
   gap: 8px;
   margin-bottom: 8px;
 }
-input, textarea {
+input {
   flex: 1;
   background: var(--bg);
   border: 1px solid var(--border);
@@ -81,7 +81,7 @@ input, textarea {
   font-family: inherit;
   transition: border-color 0.15s;
 }
-input:focus, textarea:focus {
+input:focus {
   outline: none;
   border-color: var(--border-hi);
 }
@@ -93,39 +93,40 @@ button {
   color: var(--text);
   font-size: 14px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: all 0.15s;
   font-family: inherit;
   white-space: nowrap;
 }
-button:hover { background: var(--border-hi); }
+button:hover { background: var(--surface-hi); border-color: var(--text-low); }
 button.primary {
   background: var(--accent);
   color: #000;
   border-color: var(--accent);
   font-weight: 600;
 }
-button.primary:hover { opacity: 0.9; }
+button.primary:hover { opacity: 0.85; }
 .digest-box {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 20px;
-  min-height: 80px;
+  padding: 20px 24px;
+  min-height: 60px;
   white-space: pre-wrap;
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  font-family: 'SF Mono', Monaco, monospace;
   font-size: 13px;
-  line-height: 1.7;
+  line-height: 1.8;
   color: var(--text-mid);
 }
 .digest-box .urgent { color: var(--urgent); font-weight: 600; }
 .digest-box .important { color: var(--important); font-weight: 600; }
 .digest-box .noise { color: var(--text-low); }
+.digest-box .ok { color: var(--accent); }
 .ask-box {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 20px;
-  min-height: 60px;
+  padding: 20px 24px;
+  min-height: 48px;
   white-space: pre-wrap;
   font-size: 14px;
   line-height: 1.7;
@@ -134,10 +135,12 @@ button.primary:hover { opacity: 0.9; }
 }
 .thinking { color: var(--text-low); font-style: italic; }
 .memory-item {
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 6px;
+  background: var(--surface);
 }
-.memory-item:last-child { border-bottom: none; }
 .memory-key {
   font-weight: 600;
   color: var(--text);
@@ -148,12 +151,18 @@ button.primary:hover { opacity: 0.9; }
   color: var(--text-mid);
   font-size: 13px;
   margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 60px;
 }
 .memory-cat {
   font-size: 10px;
   text-transform: uppercase;
   color: var(--text-low);
   margin-left: 8px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--bg);
 }
 .connect-grid {
   display: grid;
@@ -161,37 +170,36 @@ button.primary:hover { opacity: 0.9; }
   gap: 8px;
   margin-bottom: 12px;
 }
+.empty-state {
+  color: var(--text-low);
+  font-size: 14px;
+  padding: 20px;
+  text-align: center;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+.fade-in { animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @media (max-width: 600px) {
   .connect-grid { grid-template-columns: 1fr; }
-  .app { padding: 32px 16px 60px; }
-  .logo { font-size: 20px; }
+  .app { padding: 36px 16px 60px; }
+  .logo { font-size: 24px; }
 }
-.fade-in { animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
     <div class="logo">pulse</div>
-    <div class="tagline">connect everything. your ai does the rest.</div>
+    <div class="tagline">your ai forgot everything. now it doesn't.</div>
   </div>
 
   <div class="badges" id="badges"></div>
 
   <div class="section">
-    <div class="section-label">connect a service</div>
-    <div class="connect-grid">
-      <input id="service" placeholder="github" />
-      <input id="token" placeholder="token" type="password" />
-    </div>
-    <button onclick="connect()">connect</button>
-  </div>
-
-  <div class="section">
     <div class="section-label">digest</div>
     <button class="primary" onclick="digest()">what did i miss</button>
-    <div class="digest-box" id="digest">click to get your filtered summary.</div>
+    <div class="digest-box" id="digest" style="margin-top:12px">press the button.</div>
   </div>
 
   <div class="section">
@@ -201,6 +209,15 @@ button.primary:hover { opacity: 0.9; }
       <button onclick="ask()">ask</button>
     </div>
     <div class="ask-box" id="ask-output"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">connect</div>
+    <div class="connect-grid">
+      <input id="service" placeholder="github" />
+      <input id="token" placeholder="token" type="password" />
+    </div>
+    <button onclick="connect()">connect</button>
   </div>
 
   <div class="section">
@@ -232,9 +249,13 @@ function connect() {
   const token = document.getElementById('token').value.trim();
   if (!service || !token) return;
   fetch('/api/connect', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service,token})})
-    .then(r => r.ok ? r.json() : Promise.reject(r.text()))
-    .then(() => { status(); document.getElementById('service').value = ''; document.getElementById('token').value = ''; })
-    .catch(e => { alert('connect failed'); });
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(() => {
+      status();
+      document.getElementById('service').value = '';
+      document.getElementById('token').value = '';
+    })
+    .catch(() => alert('connect failed'));
 }
 
 function digest() {
@@ -251,12 +272,13 @@ function digest() {
         let html = d.summary
           .replace(/URGENT/g, '<span class="urgent">URGENT</span>')
           .replace(/NEEDS ATTENTION/g, '<span class="important">NEEDS ATTENTION</span>')
-          .replace(/NOISE:/g, '<span class="noise">NOISE:</span>');
+          .replace(/NOISE:/g, '<span class="noise">NOISE:</span>')
+          .replace(/filtered/g, '<span class="ok">filtered</span>');
         el.innerHTML += html;
       }
       el.className = 'digest-box fade-in';
     })
-    .catch(e => { el.innerHTML = 'error: ' + e; });
+    .catch(e => { el.innerHTML = 'error'; });
 }
 
 function ask() {
@@ -270,7 +292,7 @@ function ask() {
       el.textContent = d.detail || d.summary || JSON.stringify(d, null, 2);
       el.className = 'ask-box fade-in';
     })
-    .catch(e => { el.textContent = 'error: ' + e; });
+    .catch(e => { el.textContent = 'error'; });
 }
 
 function remember() {
@@ -289,12 +311,19 @@ function showMemory() {
   fetch('/api/memory').then(r => r.json()).then(d => {
     const el = document.getElementById('memory-list');
     if (!d || d.length === 0) {
-      el.innerHTML = '<div class="memory-item" style="color:var(--text-low)">nothing remembered yet.</div>';
+      el.innerHTML = '<div class="empty-state">nothing remembered yet.</div>';
+      return;
+    }
+    const visible = d.filter(m => m.category !== 'history' && m.category !== 'config');
+    if (visible.length === 0) {
+      el.innerHTML = '<div class="empty-state">nothing remembered yet.</div>';
       return;
     }
     el.innerHTML = '';
-    d.forEach(m => {
-      el.innerHTML += '<div class="memory-item"><span class="memory-key">' + m.key + '</span><span class="memory-cat">' + m.category + '</span><div class="memory-val">' + m.value + '</div></div>';
+    visible.forEach(m => {
+      let val = m.value;
+      if (val.length > 120) val = val.substring(0, 120) + '...';
+      el.innerHTML += '<div class="memory-item"><span class="memory-key">' + m.key + '</span><span class="memory-cat">' + m.category + '</span><div class="memory-val">' + val + '</div></div>';
     });
   });
 }
