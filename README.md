@@ -1,79 +1,51 @@
 # pulse
 
-connect everything. your ai does the rest.
+your ai forgot everything. now it doesn't.
 
-pulse sits on your machine, connects to your accounts, reads the noise, and tells you what actually matters. 38 notifications become 3. the rest is ci failures you already know about.
+most ai lives in the cloud and forgets you exist the moment you close the tab. pulse runs on your machine. it connects to your accounts. it remembers. next time you ask, it knows what you meant last time.
+
+## what it is
+
+a personal ai agent. local first. sqlite memory. any openai-compatible llm. no cloud, no saas, no account.
+
+- **memory** - sqlite on disk. survives restarts. remembers your focus, your projects, your context. tell it once, it knows forever. or until you forget.
+- **connectors** - github is wired. gmail and calendar are next. each connector feeds the same pipeline.
+- **llm** - bring your own key. any openai-compatible provider. without one, pattern matching. with one, it reasons.
+- **local** - your data never leaves. no telemetry. no phone home. no account.
 
 ## architecture
 
-two languages. one product.
+two languages. one binary.
 
-- **rust core** - the brain. filtering, memory (sqlite), llm orchestration. built with serde, rusqlite, reqwest.
-- **go shell** - the hands. http server, web ui, cli, connector management. built with stdlib only.
+- **rust core** - filtering, memory, llm orchestration, digest. serde, rusqlite, reqwest. the brain.
+- **go shell** - http server, web ui, cli, connectors. stdlib only. the hands.
 
-the go binary calls the rust binary. they share a sqlite database and json config. no protobuf, no grpc, no microservices. just two processes that talk.
+go calls rust. they share sqlite and json. no grpc, no protobuf, no microservices. two languages because each does what it's best at.
 
 ## install
 
 ```bash
-# build the rust core
 cd rust-core && cargo build --release
-cp target/release/pulse-core ~/.pulse/pulse-core
+cp target/release/pulse-core ~/.pulse/
 
-# build the go shell
 cd .. && go build -o pulse ./cmd/pulse/
 ```
 
 ## use
 
 ```bash
-# connect github
-pulse connect github ghp_your_token
-
-# get your digest - filtered, prioritized
-pulse digest
-
-# ask anything
+pulse connect github ghp_xxxx
 pulse ask "what did i miss"
-pulse ask "what do you know"
-
-# remember things
-pulse remember focus "ship pulse v1"
-pulse memory
-
-# start the web ui
-pulse serve
-# open http://localhost:9090
-
-# configure ai (optional, enables smart summaries)
-pulse config llm https://api.openai.com/v1 sk-your-key gpt-4o-mini
+pulse remember focus "ship v1"
+pulse ask "what should i work on"
+pulse serve                    # web ui on localhost:9090
 ```
 
-## how filtering works
+## why
 
-every notification gets classified:
+every notification tool shows you more. inbox, timeline, unread count. none of them know what you care about. they just show more. pulse shows you less. the right less.
 
-- **urgent** - you were mentioned, asked to review, or it's your PR/issue
-- **important** - activity on things you care about
-- **noise** - ci failures, status checks, automated updates
-
-noise is filtered out. you see what matters. 38 becomes 3.
-
-## what's connected
-
-- **github** - notifications, filtering, prioritization
-- **gmail** - stub (needs oauth)
-- **calendar** - stub (needs oauth)
-
-more connectors coming. the architecture is simple - implement the trait/interface, register it, done.
-
-## philosophy
-
-- local first. your data stays on your machine.
-- single binary. no docker, no kubernetes, no saas.
-- two languages because each does what it's best at.
-- boring tech. sqlite, stdlib, http.
-- no telemetry. no phone home. no account.
+and it's yours. not a saas. not a freemium tier. not a data pipeline to someone's dashboard. your agent, your data, your machine.
 
 ## license
 
