@@ -16,6 +16,7 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
 }
+.click-fx { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: visible; }
 .wrap { max-width: 680px; margin: 0 auto; padding: 60px 24px 80px; }
 .header { text-align: center; margin-bottom: 40px; }
 .header h1 {
@@ -189,6 +190,7 @@ body {
 </style>
 </head>
 <body>
+<div class="click-fx" id="clickFx"></div>
 <div class="wrap">
   <div class="header">
     <h1>your inbox is <span class="strike">fine</span> drowning you.</h1>
@@ -303,7 +305,80 @@ function startFlood() {
   }, 180);
 }
 
+function sniperBurst(x, y) {
+  var fx = document.getElementById('clickFx');
+  var color = '#22c55e';
+  var effectSize = 80;
+  var strokeWidth = 2;
+  var group = document.createElement('div');
+  group.style.position = 'absolute';
+  group.style.left = (x - effectSize/2) + 'px';
+  group.style.top = (y - effectSize/2) + 'px';
+  group.style.width = effectSize + 'px';
+  group.style.height = effectSize + 'px';
+
+  var angles = [0, Math.PI/3, 2*Math.PI/3, Math.PI, 4*Math.PI/3, 5*Math.PI/3, Math.PI/6, 5*Math.PI/6, 7*Math.PI/6, 11*Math.PI/6];
+  angles.forEach(function(angle, i) {
+    var dot = document.createElement('div');
+    dot.style.position = 'absolute';
+    dot.style.left = (effectSize/2 - strokeWidth/2) + 'px';
+    dot.style.top = (effectSize/2 - strokeWidth/2) + 'px';
+    dot.style.width = strokeWidth + 'px';
+    dot.style.height = strokeWidth + 'px';
+    dot.style.background = color;
+    dot.style.borderRadius = '50%';
+    dot.style.transform = 'translate(0,0)';
+    dot.style.transition = 'transform 0.3s cubic-bezier(0.2,0.8,0.2,1), opacity 0.4s ease-out 0.15s, width 0.4s ease-out 0.15s, height 0.4s ease-out 0.15s';
+    group.appendChild(dot);
+    var dist = effectSize * 0.4;
+    setTimeout(function() {
+      dot.style.transform = 'translate(' + (Math.cos(angle) * dist) + 'px,' + (Math.sin(angle) * dist) + 'px)';
+      dot.style.opacity = '0';
+      dot.style.width = '0px';
+      dot.style.height = '0px';
+    }, 10 + i * 5);
+  });
+
+  var cx = effectSize / 2, cy = effectSize / 2;
+  var lineAngles = [0, Math.PI/2, Math.PI, 3*Math.PI/2];
+  lineAngles.forEach(function(angle) {
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.style.position = 'absolute';
+    svg.style.left = '0';
+    svg.style.top = '0';
+    svg.style.width = effectSize + 'px';
+    svg.style.height = effectSize + 'px';
+    svg.style.overflow = 'visible';
+    var lineEl = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    var sX = cx + 5 * Math.cos(angle);
+    var sY = cy - 5 * Math.sin(angle);
+    var eX = cx + (5 + effectSize * 0.2) * Math.cos(angle);
+    var eY = cy - (5 + effectSize * 0.2) * Math.sin(angle);
+    lineEl.setAttribute('x1', sX);
+    lineEl.setAttribute('y1', sY);
+    lineEl.setAttribute('x2', eX);
+    lineEl.setAttribute('y2', eY);
+    lineEl.setAttribute('stroke', color);
+    lineEl.setAttribute('stroke-width', strokeWidth);
+    lineEl.style.transition = 'all 0.3s cubic-bezier(0.2,0.8,0.2,1)';
+    svg.appendChild(lineEl);
+    group.appendChild(svg);
+    setTimeout(function() {
+      var fX = cx + (5 + effectSize * 0.2) * Math.cos(angle);
+      var fY = cy - (5 + effectSize * 0.2) * Math.sin(angle);
+      lineEl.setAttribute('x1', fX);
+      lineEl.setAttribute('y1', fY);
+      lineEl.setAttribute('stroke-width', '0');
+    }, 10);
+  });
+
+  fx.appendChild(group);
+  setTimeout(function() { if (group.parentNode) group.parentNode.removeChild(group); }, 600);
+}
+
 function runPulse() {
+  var rect = pulseBtn.getBoundingClientRect();
+  sniperBurst(rect.left + rect.width/2, rect.top + rect.height/2);
   pulseBtn.disabled = true;
   pulseBtn.textContent = 'filtering...';
 
