@@ -7,18 +7,20 @@ import (
 	"time"
 
 	"github.com/valtors/pulse/internal/connect"
+	"github.com/valtors/pulse/internal/llm"
 	"github.com/valtors/pulse/internal/memory"
 )
 
 type Agent struct {
-	mem        *memory.Store
-	github     *connect.GitHubConnector
-	gmail      *connect.GmailConnector
-	calendar   *connect.CalendarConnector
+	mem      *memory.Store
+	llm      *llm.Client
+	github   *connect.GitHubConnector
+	gmail    *connect.GmailConnector
+	calendar *connect.CalendarConnector
 }
 
-func New(mem *memory.Store) *Agent {
-	return &Agent{mem: mem}
+func New(mem *memory.Store, llmClient *llm.Client) *Agent {
+	return &Agent{mem: mem, llm: llmClient}
 }
 
 func (a *Agent) ConnectGitHub(token string) error {
@@ -26,8 +28,6 @@ func (a *Agent) ConnectGitHub(token string) error {
 	if err := a.github.Connect(token); err != nil {
 		return err
 	}
-	user := a.githubUser()
-	a.mem.Remember("github_user", user, "config")
 	a.mem.Remember("github_connected", time.Now().Format(time.RFC3339), "config")
 	return nil
 }
@@ -50,144 +50,196 @@ func (a *Agent) ConnectCalendar(token string) error {
 	return nil
 }
 
-type Summary struct {
-	Source    string    `json:"source"`
-	Count     int       `json:"count"`
-	Items     []string  `json:"items"`
-	Generated time.Time `json:"generated"`
-}
-
-func (a *Agent) WhatDidIMiss() ([]Summary, error) {
-	var summaries []Summary
-
+func (a *Agent) Connected() []string {
+	var c []string
 	if a.github != nil {
-		notifs, err := a.github.Notifications(50)
-		if err == nil && len(notifs) > 0 {
-			s := Summary{
-				Source:    "github",
-				Count:     len(notifs),
-				Generated: time.Now(),
-			}
-			for _, n := range notifs {
-				s.Items = append(s.Items, fmt.Sprintf("[%s] %s - %s", n.Repository.FullName, n.Subject.Type, n.Subject.Title))
-			}
-			summaries = append(summaries, s)
-		}
+		c = append(c, "github")
 	}
-
 	if a.gmail != nil {
-		msgs, err := a.gmail.Unread(20)
-		if err == nil && len(msgs) > 0 {
-			s := Summary{
-				Source:    "gmail",
-				Count:     len(msgs),
-				Generated: time.Now(),
-			}
-			for _, m := range msgs {
-				s.Items = append(s.Items, m.Snippet)
-			}
-			summaries = append(summaries, s)
-		}
+		c = append(c, "gmail")
 	}
-
 	if a.calendar != nil {
-		events, err := a.calendar.Today()
-		if err == nil && len(events) > 0 {
-			s := Summary{
-				Source:    "calendar",
-				Count:     len(events),
-				Generated: time.Now(),
-			}
-			for _, e := range events {
-				s.Items = append(s.Items, fmt.Sprintf("%s at %s", e.Summary, e.Start.Format("15:04")))
-			}
-			summaries = append(summaries, s)
-		}
+		c = append(c, "calendar")
 	}
-
-	return summaries, nil
+	return c
 }
 
-type Task struct {
-	Input    string
-	Source   string
-	Action   string
-	Detail   string
+func (a *Agent) Memory() *memory.Store {
+	return a.mem
 }
 
-func (a *Agent) Do(input string) (*Task, error) {
+type TaskResult struct {
+	Input    string `json:"input"`
+	Action   string `json:"action"`
+	Detail   string `json:"detail"`
+}
+
+func (a *Agent) Do(input string) (*TaskResult, error) {
 	lower := strings.ToLower(input)
 
-	if strings.Contains(lower, "what did i miss") || strings.Contains(lower, "what'd i miss") || strings.Contains(lower, "summary") {
-		summaries, err := a.WhatDidIMiss()
-		if err != nil {
-			return nil, err
-		}
-		out, _ := json.MarshalIndent(summaries, "", "  ")
-		a.mem.Remember("last_summary", string(out), "history")
-		return &Task{
-			Input:  input,
-			Source: "aggregator",
-			Action: "summarize",
-			Detail: string(out),
-		}, nil
-	}
-
-	if strings.Contains(lower, "remember ") || strings.Contains(lower, "remember that ") || strings.Contains(lower, "note that ") {
+	if strings.Contains(lower, "remember ") {
 		parts := strings.SplitN(input, " ", 3)
 		if len(parts) >= 3 {
 			key := parts[1]
 			value := parts[2]
 			a.mem.Remember(key, value, "user")
-			return &Task{
+			return &TaskResult{
 				Input:  input,
-				Source: "memory",
 				Action: "remember",
 				Detail: fmt.Sprintf("stored: %s = %s", key, value),
 			}, nil
 		}
 	}
 
-	if strings.Contains(lower, "what do you know") || strings.Contains(lower, "what do you remember") {
-		memories, err := a.mem.All()
+	if strings.Contains(lower, "forget ") {
+		key := strings.TrimSpace(input[strings.Index(input, " ")+1:])
+		a.mem.Forget(key)
+		return &TaskResult{
+			Input:  input,
+			Action: "forget",
+			Detail: fmt.Sprintf("forgot: %s", key),
+		}, nil
+	}
+
+	if a.llm == nil || a.llm.APIKey == "" {
+		return a.doWithoutLLM(input)
+	}
+
+	return a.doWithLLM(input)
+}
+
+func (a *Agent) doWithoutLLM(input string) (*TaskResult, error) {
+	lower := strings.ToLower(input)
+
+	if strings.Contains(lower, "what did i miss") || strings.Contains(lower, "summary") {
+		data, err := a.gatherContext()
 		if err != nil {
 			return nil, err
 		}
-		out, _ := json.MarshalIndent(memories, "", "  ")
-		return &Task{
+		if data == "" {
+			return &TaskResult{
+				Input:  input,
+				Action: "summarize",
+				Detail: "nothing to report. connect a service first.",
+			}, nil
+		}
+		return &TaskResult{
 			Input:  input,
-			Source: "memory",
+			Action: "summarize",
+			Detail: data,
+		}, nil
+	}
+
+	if strings.Contains(lower, "what do you know") || strings.Contains(lower, "what do you remember") {
+		mems, _ := a.mem.All()
+		out, _ := json.MarshalIndent(mems, "", "  ")
+		return &TaskResult{
+			Input:  input,
 			Action: "recall",
 			Detail: string(out),
 		}, nil
 	}
 
-	return &Task{
+	return &TaskResult{
 		Input:  input,
-		Source: "agent",
 		Action: "unknown",
-		Detail: "i don't know how to do that yet. connect more services or teach me.",
+		Detail: "connect an llm api key to enable full agent capabilities. or try: what did i miss, remember X, what do you know",
 	}, nil
 }
 
-func (a *Agent) githubUser() string {
-	return "connected"
+func (a *Agent) doWithLLM(input string) (*TaskResult, error) {
+	context := a.gatherContextRaw()
+	memories, _ := a.mem.All()
+	memStr := ""
+	if len(memories) > 0 {
+		var memLines []string
+		for _, m := range memories {
+			if m.Category == "user" || m.Category == "config" {
+				memLines = append(memLines, fmt.Sprintf("- %s: %s", m.Key, m.Value))
+			}
+		}
+		memStr = strings.Join(memLines, "\n")
+	}
+
+	system := fmt.Sprintf(`you are pulse. a personal ai agent that lives on the user's machine.
+
+the user has connected these services: %s
+
+memory about the user:
+%s
+
+live data from connected services:
+%s
+
+rules:
+- be direct. short sentences. no fluff.
+- if the user asks what they missed, summarize the live data above. group by service. highlight what needs attention.
+- if the user asks you to do something, explain what you would do based on the data available.
+- if you don't have the data, say so. don't make things up.
+- the user is not technical. speak plainly.`, strings.Join(a.Connected(), ", "), memStr, context)
+
+	resp, err := a.llm.Complete(system, input)
+	if err != nil {
+		return &TaskResult{
+			Input:  input,
+			Action: "error",
+			Detail: fmt.Sprintf("llm error: %v", err),
+		}, nil
+	}
+
+	a.mem.Remember("last_interaction", input, "history")
+
+	return &TaskResult{
+		Input:  input,
+		Action: "respond",
+		Detail: resp,
+	}, nil
 }
 
-func (a *Agent) Connected() []string {
-	var connected []string
+func (a *Agent) gatherContextRaw() string {
+	var sections []string
+
 	if a.github != nil {
-		connected = append(connected, "github")
+		notifs, err := a.github.Notifications(50)
+		if err == nil && len(notifs) > 0 {
+			sections = append(sections, fmt.Sprintf("GITHUB (%d notifications):", len(notifs)))
+			for i, n := range notifs {
+				if i >= 20 {
+					sections = append(sections, fmt.Sprintf("  ... and %d more", len(notifs)-20))
+					break
+				}
+				sections = append(sections, fmt.Sprintf("  [%s] %s - %s", n.Repository.FullName, n.Subject.Type, n.Subject.Title))
+			}
+		}
 	}
+
 	if a.gmail != nil {
-		connected = append(connected, "gmail")
+		msgs, err := a.gmail.Unread(20)
+		if err == nil && len(msgs) > 0 {
+			sections = append(sections, fmt.Sprintf("GMAIL (%d unread):", len(msgs)))
+			for _, m := range msgs {
+				sections = append(sections, fmt.Sprintf("  %s", m.Snippet))
+			}
+		}
 	}
+
 	if a.calendar != nil {
-		connected = append(connected, "calendar")
+		events, err := a.calendar.Today()
+		if err == nil && len(events) > 0 {
+			sections = append(sections, fmt.Sprintf("CALENDAR (%d events today):", len(events)))
+			for _, e := range events {
+				sections = append(sections, fmt.Sprintf("  %s at %s", e.Summary, e.Start.Format("15:04")))
+			}
+		}
 	}
-	return connected
+
+	if len(sections) == 0 {
+		return "no services connected."
+	}
+
+	return strings.Join(sections, "\n")
 }
 
-func (a *Agent) Memory() *memory.Store {
-	return a.mem
+func (a *Agent) gatherContext() (string, error) {
+	return a.gatherContextRaw(), nil
 }
