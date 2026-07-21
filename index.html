@@ -38,22 +38,22 @@ body {
   color: var(--text-low);
   margin-bottom: 16px;
 }
-.demo-box {
+p { color: var(--text-mid); font-size: 16px; line-height: 1.7; }
+.code-block {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 24px;
+  padding: 20px 24px;
   font-family: 'SF Mono', Monaco, monospace;
   font-size: 13px;
   line-height: 1.8;
   color: var(--text-mid);
-  white-space: pre-wrap;
+  white-space: pre;
   overflow-x: auto;
 }
-.demo-box .urgent { color: #ef4444; }
-.demo-box .important { color: #f59e0b; }
-.demo-box .noise { color: var(--text-low); }
-.demo-box .prompt { color: var(--accent); }
+.code-block .prompt { color: var(--accent); }
+.code-block .label { color: var(--text-low); }
+.code-block .key { color: var(--text); }
 .arch-box {
   display: flex;
   gap: 16px;
@@ -84,21 +84,35 @@ body {
   color: var(--text-mid);
   line-height: 1.6;
 }
+.feature { margin-bottom: 20px; }
+.feature h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.feature p {
+  font-size: 14px;
+  color: var(--text-mid);
+}
 @media (max-width: 600px) {
   .container { padding: 40px 16px 60px; }
   .arch-box { flex-direction: column; }
 }
-.cli-line {
-  font-family: 'SF Mono', Monaco, monospace;
-  font-size: 14px;
-  padding: 8px 0;
-  color: var(--text-mid);
-}
-.cli-line .cmd { color: var(--accent); }
-.cli-line .out { color: var(--text-low); }
 a { color: var(--text); text-decoration: none; }
 a:hover { color: var(--accent); }
 .footer { margin-top: 64px; color: var(--text-low); font-size: 13px; }
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-family: 'SF Mono', Monaco, monospace;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-low);
+  margin-right: 6px;
+}
 </style>
 </head>
 <body>
@@ -107,36 +121,30 @@ a:hover { color: var(--accent); }
   <div class="tagline">connect everything. your ai does the rest.</div>
 
   <div class="section">
-    <div class="section-label">the problem</div>
-    <p style="color: var(--text-mid); font-size: 16px; line-height: 1.7;">
-      you get 38 notifications. 29 are ci failures. 3 are mentions you need to see.
-      the rest is noise. you miss the 3 because the 38 drowned them.
-      pulse fixes this.
+    <p>
+      a personal ai agent that lives on your machine. it connects to your
+      accounts, remembers what matters to you, and cuts through the noise.
+      not a cloud service. not a dashboard. a binary you run.
     </p>
   </div>
 
   <div class="section">
-    <div class="section-label">how it works</div>
-    <div class="demo-box">
-<span class="prompt">$</span> pulse connect github ghp_xxxx
-connected github
-
-<span class="prompt">$</span> pulse digest
-
-<span class="urgent">URGENT:</span>
-  valtors/relay
-    [PullRequest] docs: add migration guide - you were mentioned
-  microsoft/autogen
-    [Discussion] Pre-action authority receipt - you were mentioned
-
-<span class="important">NEEDS ATTENTION:</span>
-  AgentWrapper/agent-orchestrator
-    [Issue] Daemon status polling - your issue has activity
-    [Issue] Superseded review runs - your issue has activity
-
-<span class="noise">NOISE: 29 items filtered (ci, status checks, automated noise)</span>
-
-38 became 4. the rest doesn't matter.
+    <div class="section-label">what it does</div>
+    <div class="feature">
+      <h3>remembers you</h3>
+      <p>sqlite memory persists across restarts. it knows your focus, your projects, what you care about and what you ignore. every interaction makes it smarter about you.</p>
+    </div>
+    <div class="feature">
+      <h3>connects accounts</h3>
+      <p>github is wired. gmail and calendar are stubbed. each connector plugs into the same pipeline. add a service, pulse learns from it.</p>
+    </div>
+    <div class="feature">
+      <h3>thinks with llm</h3>
+      <p>openai-compatible. bring your own key, any provider. without an llm, pulse does pattern matching. with one, it reasons about your data, answers questions, and writes summaries.</p>
+    </div>
+    <div class="feature">
+      <h3>runs locally</h3>
+      <p>your data never leaves your machine. no telemetry, no phone home, no account. sqlite on disk, config in json, one binary.</p>
     </div>
   </div>
 
@@ -146,37 +154,47 @@ connected github
       <div class="arch-card">
         <h3>rust core</h3>
         <div class="lang rust">rust</div>
-        <p>the brain. filtering engine, sqlite memory, llm orchestration. serde, rusqlite, reqwest. fast, safe, no gc pauses.</p>
+        <p>filtering engine, sqlite memory, llm orchestration, digest builder. serde, rusqlite, reqwest. the brain.</p>
       </div>
       <div class="arch-card">
         <h3>go shell</h3>
         <div class="lang go">go</div>
-        <p>the hands. http server, web ui, cli, connector management. stdlib only. one binary, zero dependencies.</p>
+        <p>http server, web ui, cli, connector management. stdlib only. the hands.</p>
       </div>
     </div>
-    <p style="color: var(--text-low); font-size: 14px;">
-      two languages because each does what it's best at. the go binary calls the rust binary. they share sqlite and json. no grpc, no protobuf, no microservices.
+    <p style="font-size: 14px;">
+      go calls rust. they share sqlite and json. no grpc, no protobuf, no
+      microservices. two languages because each does what it's best at.
     </p>
   </div>
 
   <div class="section">
-    <div class="section-label">commands</div>
-    <div class="cli-line"><span class="cmd">pulse connect</span> github <span class="out">&lt;token&gt;</span>  <span class="out"># connect a service</span></div>
-    <div class="cli-line"><span class="cmd">pulse digest</span>  <span class="out"># get your filtered summary</span></div>
-    <div class="cli-line"><span class="cmd">pulse ask</span> <span class="out">"what did i miss"</span>  <span class="out"># ask anything</span></div>
-    <div class="cli-line"><span class="cmd">pulse remember</span> focus <span class="out">"ship v1"</span>  <span class="out"># store memory</span></div>
-    <div class="cli-line"><span class="cmd">pulse serve</span>  <span class="out"># web ui on localhost:9090</span></div>
+    <div class="section-label">try it</div>
+    <div class="code-block"><span class="prompt">$</span> pulse connect github <span class="label">&lt;token&gt;</span>
+<span class="prompt">$</span> pulse ask <span class="key">"what did i miss"</span>
+<span class="prompt">$</span> pulse remember focus <span class="key">"ship v1"</span>
+<span class="prompt">$</span> pulse ask <span class="key">"what should i work on"</span>
+<span class="prompt">$</span> pulse serve</div>
   </div>
 
   <div class="section">
-    <div class="section-label">philosophy</div>
-    <p style="color: var(--text-mid); font-size: 15px; line-height: 1.7;">
-      local first. your data stays on your machine. single binary. no docker, no kubernetes, no saas. no telemetry. no phone home. no account. sqlite, stdlib, http. boring tech on purpose.
-    </p>
+    <div class="section-label">stack</div>
+    <div>
+      <span class="tag">rust</span>
+      <span class="tag">go</span>
+      <span class="tag">sqlite</span>
+      <span class="tag">serde</span>
+      <span class="tag">rusqlite</span>
+      <span class="tag">reqwest</span>
+      <span class="tag">stdlib</span>
+      <span class="tag">openai-compatible</span>
+      <span class="tag">no build step</span>
+      <span class="tag">single binary</span>
+    </div>
   </div>
 
   <div class="footer">
-    <a href="https://github.com/valtors/pulse">github.com/valtors/pulse</a> - MIT licensed - built with AO
+    <a href="https://github.com/valtors/pulse">github.com/valtors/pulse</a> - MIT - built with AO
   </div>
 </div>
 </body>
