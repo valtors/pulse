@@ -202,14 +202,10 @@ func (a *Agent) gatherContextRaw() string {
 	if a.github != nil {
 		notifs, err := a.github.Notifications(50)
 		if err == nil && len(notifs) > 0 {
-			sections = append(sections, fmt.Sprintf("GITHUB (%d notifications):", len(notifs)))
-			for i, n := range notifs {
-				if i >= 20 {
-					sections = append(sections, fmt.Sprintf("  ... and %d more", len(notifs)-20))
-					break
-				}
-				sections = append(sections, fmt.Sprintf("  [%s] %s - %s", n.Repository.FullName, n.Subject.Type, n.Subject.Title))
-			}
+			filtered := filterGitHub(notifs)
+			summary := formatFiltered(filtered)
+			sections = append(sections, "GITHUB:")
+			sections = append(sections, summary)
 		}
 	}
 
