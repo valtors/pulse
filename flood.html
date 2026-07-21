@@ -2,134 +2,122 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>38 became 3</title>
+<title>38 became 4</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
   background: #0a0a0a;
   color: #e5e5e5;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  font-size: 15px;
-  line-height: 1.6;
-  min-height: 100vh;
-  overflow-x: hidden;
+  font-size: 15px; line-height: 1.6;
+  min-height: 100vh; overflow-x: hidden;
+  position: relative;
 }
-.click-fx { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: visible; }
-.wrap { max-width: 680px; margin: 0 auto; padding: 60px 24px 80px; }
+.prism-grid {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: auto; z-index: 0; overflow: hidden;
+}
+.prism-grid .grid-plane {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex; flex-direction: column;
+}
+.prism-grid .grid-row { display: flex; }
+.prism-grid .grid-cell {
+  border: 1px solid rgba(255,255,255,0.05);
+  box-sizing: border-box;
+}
+.prism-grid .lit-cell {
+  position: absolute; pointer-events: none;
+  border-radius: 2px;
+  transition: opacity 1.2s ease-out, transform 1.2s ease-out;
+}
+.click-fx {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 999; overflow: visible;
+}
+.wrap {
+  max-width: 680px; margin: 0 auto;
+  padding: 60px 24px 80px;
+  position: relative; z-index: 5;
+}
 .header { text-align: center; margin-bottom: 40px; }
 .header h1 {
-  font-size: 2.4rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
+  font-size: 2.4rem; font-weight: 800;
+  letter-spacing: -0.04em; line-height: 1.1;
   margin-bottom: 8px;
 }
 .header h1 .strike {
   text-decoration: line-through;
   text-decoration-color: #ef4444;
-  text-decoration-thickness: 2px;
-  color: #555;
+  text-decoration-thickness: 2px; color: #555;
 }
 .header p { color: #888; font-size: 1rem; }
 .flood-zone {
-  background: #111;
-  border: 1px solid #1a1a1a;
-  border-radius: 8px;
-  padding: 16px;
-  min-height: 200px;
-  max-height: 500px;
-  overflow-y: auto;
-  margin-bottom: 24px;
+  background: #111; border: 1px solid #1a1a1a;
+  border-radius: 8px; padding: 16px;
+  min-height: 200px; max-height: 500px;
+  overflow-y: auto; margin-bottom: 24px;
   position: relative;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.4);
 }
 .flood-zone::-webkit-scrollbar { width: 4px; }
 .flood-zone::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
 .notif {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 12px;
-  border-bottom: 1px solid #1a1a1a;
-  font-size: 13px;
-  animation: slideIn 0.3s ease;
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px; border-bottom: 1px solid #1a1a1a;
+  font-size: 13px; animation: slideIn 0.3s ease;
 }
 .notif:last-child { border-bottom: none; }
 .notif .icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
+  width: 28px; height: 28px; border-radius: 4px;
+  flex-shrink: 0; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
   font-family: 'SF Mono', Monaco, monospace;
 }
-.notif .icon.urgent { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
-.notif .icon.important { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
-.notif .icon.noise { background: rgba(85, 85, 85, 0.15); color: #555; }
+.notif .icon.urgent { background: rgba(239,68,68,0.15); color: #ef4444; }
+.notif .icon.important { background: rgba(245,158,11,0.15); color: #f59e0b; }
+.notif .icon.noise { background: rgba(85,85,85,0.15); color: #555; }
 .notif .body { flex: 1; }
 .notif .repo { color: #888; font-size: 12px; }
 .notif .title { color: #e5e5e5; font-size: 13px; margin-top: 2px; }
 .notif .type { color: #555; font-size: 11px; font-family: 'SF Mono', Monaco, monospace; text-transform: uppercase; }
 .notif.noise-item { opacity: 0.4; transition: opacity 0.5s, max-height 0.5s, padding 0.5s, margin 0.5s, border 0.5s; overflow: hidden; }
 .notif.noise-item.filtered {
-  opacity: 0;
-  max-height: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  margin: 0;
-  border-bottom: none;
+  opacity: 0; max-height: 0;
+  padding-top: 0; padding-bottom: 0;
+  margin: 0; border-bottom: none;
 }
 .controls { text-align: center; margin: 32px 0; }
 .btn {
-  display: inline-block;
-  background: #22c55e;
-  color: #000;
-  font-weight: 700;
-  padding: 14px 32px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-size: 1rem;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: inherit;
+  display: inline-block; background: #22c55e; color: #000;
+  font-weight: 700; padding: 14px 32px;
+  border-radius: 8px; text-decoration: none;
+  font-size: 1rem; border: none; cursor: pointer;
+  transition: all 0.2s; font-family: inherit;
 }
 .btn:hover { opacity: 0.85; transform: scale(1.02); }
 .btn:disabled { background: #222; color: #555; cursor: not-allowed; transform: none; }
 .result {
-  text-align: center;
-  margin: 24px 0;
-  opacity: 0;
-  transition: opacity 0.5s;
+  text-align: center; margin: 24px 0;
+  opacity: 0; transition: opacity 0.5s;
 }
 .result.show { opacity: 1; }
-.result .big {
-  font-size: 3rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
+.result .big { font-size: 3rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
 .result .big .from { color: #ef4444; text-decoration: line-through; }
 .result .big .arrow { color: #555; margin: 0 8px; }
 .result .big .to { color: #22c55e; }
 .result .sub { color: #888; font-size: 1rem; margin-top: 8px; }
 .stat-bar {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  margin: 24px 0;
-  flex-wrap: wrap;
+  display: flex; gap: 16px; justify-content: center;
+  margin: 24px 0; flex-wrap: wrap;
 }
 .stat {
-  text-align: center;
-  padding: 12px 20px;
-  background: #111;
-  border: 1px solid #1a1a1a;
+  text-align: center; padding: 12px 20px;
+  background: #111; border: 1px solid #1a1a1a;
   border-radius: 8px;
 }
 .stat .num { font-size: 1.8rem; font-weight: 800; }
@@ -139,47 +127,22 @@ body {
 .stat .label { font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
 .cta { text-align: center; margin-top: 40px; padding-top: 40px; border-top: 1px solid #1a1a1a; }
 .cta a {
-  color: #22c55e;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1.1rem;
-  border-bottom: 1px solid #22c55e;
-  padding-bottom: 2px;
+  color: #22c55e; text-decoration: none;
+  font-weight: 600; font-size: 1.1rem;
+  border-bottom: 1px solid #22c55e; padding-bottom: 2px;
 }
 .cta a:hover { opacity: 0.8; }
 .cta .footer { color: #555; font-size: 0.8rem; margin-top: 16px; }
 .counter {
-  position: sticky;
-  top: 0;
-  background: #0a0a0a;
-  padding: 8px 0;
+  position: sticky; top: 0;
+  background: #0a0a0a; padding: 8px 0;
   text-align: center;
   font-family: 'SF Mono', Monaco, monospace;
-  font-size: 0.85rem;
-  color: #555;
-  margin-bottom: 8px;
-  z-index: 10;
+  font-size: 0.85rem; color: #555;
+  margin-bottom: 8px; z-index: 10;
 }
 .counter .num { color: #e5e5e5; font-weight: 700; }
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes slideInFade {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 0.4; transform: translateY(0); }
-}
-.pulse-badge {
-  display: inline-block;
-  background: rgba(34, 197, 94, 0.1);
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  color: #22c55e;
-  font-size: 0.75rem;
-  font-family: 'SF Mono', Monaco, monospace;
-  padding: 3px 10px;
-  border-radius: 4px;
-  margin-left: 8px;
-}
+@keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 600px) {
   .header h1 { font-size: 1.8rem; }
   .wrap { padding: 40px 16px 60px; }
@@ -190,37 +153,32 @@ body {
 </style>
 </head>
 <body>
+<div class="prism-grid" id="prismGrid"></div>
 <div class="click-fx" id="clickFx"></div>
 <div class="wrap">
   <div class="header">
     <h1>your inbox is <span class="strike">fine</span> drowning you.</h1>
     <p>this is what your github notifications look like right now.<br>watch.</p>
   </div>
-
   <div class="counter" id="counter">0 notifications</div>
   <div class="flood-zone" id="flood"></div>
-
   <div class="controls">
     <button class="btn" id="pulse-btn" onclick="runPulse()" disabled>run pulse</button>
   </div>
-
   <div class="result" id="result">
     <div class="big"><span class="from">38</span> <span class="arrow">-></span> <span class="to">4</span></div>
     <div class="sub">the rest didn't matter.</div>
   </div>
-
   <div class="stat-bar" id="stats" style="display:none">
     <div class="stat"><div class="num urgent">2</div><div class="label">urgent</div></div>
     <div class="stat"><div class="num important">2</div><div class="label">needs you</div></div>
     <div class="stat"><div class="num noise">34</div><div class="label">noise</div></div>
   </div>
-
   <div class="cta">
     <a href="https://github.com/valtors/pulse">get pulse -></a>
     <div class="footer">built with AO. the code is silent, the output speaks.</div>
   </div>
 </div>
-
 <script>
 const notifications = [
   {repo:"valtors/relay",title:"ci workflow run failed for main branch",type:"ci",priority:"noise"},
@@ -262,33 +220,23 @@ const notifications = [
   {repo:"valtors/relay",title:"ci workflow run failed for main branch",type:"ci",priority:"noise"},
   {repo:"AgentWrapper/agent-orchestrator",title:"Go workflow run failed for fix/sticky-state-zombie-sessions",type:"ci",priority:"noise"},
 ];
-
 const flood = document.getElementById('flood');
 const counter = document.getElementById('counter');
 const pulseBtn = document.getElementById('pulse-btn');
 const result = document.getElementById('result');
 const stats = document.getElementById('stats');
-
-let idx = 0;
-let interval;
+let idx = 0, interval;
 
 function addNotif(n) {
   const div = document.createElement('div');
   div.className = 'notif' + (n.priority === 'noise' ? ' noise-item' : '');
   div.dataset.priority = n.priority;
-
   const iconClass = n.priority === 'urgent' ? 'urgent' : n.priority === 'important' ? 'important' : 'noise';
   const iconText = n.type === 'ci' ? 'CI' : n.type === 'pr' ? 'PR' : n.type === 'issue' ? 'IS' : n.type === 'discussion' ? 'DC' : '??';
-
-  div.innerHTML = '<div class="icon ' + iconClass + '">' + iconText + '</div>' +
-    '<div class="body"><div class="repo">' + n.repo + '</div>' +
-    '<div class="title">' + n.title + '</div></div>';
-
+  div.innerHTML = '<div class="icon ' + iconClass + '">' + iconText + '</div><div class="body"><div class="repo">' + n.repo + '</div><div class="title">' + n.title + '</div></div>';
   flood.appendChild(div);
   flood.scrollTop = flood.scrollHeight;
-
   counter.innerHTML = '<span class="num">' + (idx + 1) + '</span> notifications';
-
   if (idx >= 38) {
     clearInterval(interval);
     pulseBtn.disabled = false;
@@ -297,83 +245,67 @@ function addNotif(n) {
 }
 
 function startFlood() {
-  interval = setInterval(() => {
-    if (idx < notifications.length) {
-      addNotif(notifications[idx]);
-      idx++;
-    }
+  interval = setInterval(function() {
+    if (idx < notifications.length) { addNotif(notifications[idx]); idx++; }
   }, 180);
 }
 
 function sniperBurst(x, y) {
   var fx = document.getElementById('clickFx');
   var color = '#22c55e';
-  var effectSize = 80;
-  var strokeWidth = 2;
+  var effectSize = 140, strokeWidth = 3;
   var group = document.createElement('div');
-  group.style.position = 'absolute';
-  group.style.left = (x - effectSize/2) + 'px';
-  group.style.top = (y - effectSize/2) + 'px';
-  group.style.width = effectSize + 'px';
-  group.style.height = effectSize + 'px';
+  group.style.cssText = 'position:absolute;left:' + (x - effectSize/2) + 'px;top:' + (y - effectSize/2) + 'px;width:' + effectSize + 'px;height:' + effectSize + 'px';
 
-  var angles = [0, Math.PI/3, 2*Math.PI/3, Math.PI, 4*Math.PI/3, 5*Math.PI/3, Math.PI/6, 5*Math.PI/6, 7*Math.PI/6, 11*Math.PI/6];
-  angles.forEach(function(angle, i) {
+  var ring = document.createElement('div');
+  ring.style.cssText = 'position:absolute;left:' + (effectSize/2 - 25) + 'px;top:' + (effectSize/2 - 25) + 'px;width:50px;height:50px;border:2px solid ' + color + ';border-radius:50%;opacity:0.9;transform:scale(0.3);transition:transform 0.5s cubic-bezier(0.2,0.8,0.2,1),opacity 0.5s ease-out';
+  group.appendChild(ring);
+  setTimeout(function() { ring.style.transform = 'scale(3)'; ring.style.opacity = '0'; }, 10);
+
+  var ring2 = document.createElement('div');
+  ring2.style.cssText = 'position:absolute;left:' + (effectSize/2 - 15) + 'px;top:' + (effectSize/2 - 15) + 'px;width:30px;height:30px;border:1px solid ' + color + ';border-radius:50%;opacity:0.6;transform:scale(0.3);transition:transform 0.4s cubic-bezier(0.2,0.8,0.2,1) 0.1s,opacity 0.4s ease-out 0.1s';
+  group.appendChild(ring2);
+  setTimeout(function() { ring2.style.transform = 'scale(3.5)'; ring2.style.opacity = '0'; }, 10);
+
+  for (var a = 0; a < 16; a++) {
+    var angle = a * Math.PI / 8;
     var dot = document.createElement('div');
-    dot.style.position = 'absolute';
-    dot.style.left = (effectSize/2 - strokeWidth/2) + 'px';
-    dot.style.top = (effectSize/2 - strokeWidth/2) + 'px';
-    dot.style.width = strokeWidth + 'px';
-    dot.style.height = strokeWidth + 'px';
-    dot.style.background = color;
-    dot.style.borderRadius = '50%';
-    dot.style.transform = 'translate(0,0)';
-    dot.style.transition = 'transform 0.3s cubic-bezier(0.2,0.8,0.2,1), opacity 0.4s ease-out 0.15s, width 0.4s ease-out 0.15s, height 0.4s ease-out 0.15s';
+    dot.style.cssText = 'position:absolute;left:' + (effectSize/2 - strokeWidth/2) + 'px;top:' + (effectSize/2 - strokeWidth/2) + 'px;width:' + strokeWidth + 'px;height:' + strokeWidth + 'px;background:' + color + ';border-radius:50%;transform:translate(0,0);transition:transform 0.4s cubic-bezier(0.2,0.8,0.2,1) ' + (a * 0.01) + 's,opacity 0.5s ease-out 0.2s,width 0.5s ease-out 0.2s,height 0.5s ease-out 0.2s';
     group.appendChild(dot);
-    var dist = effectSize * 0.4;
-    setTimeout(function() {
-      dot.style.transform = 'translate(' + (Math.cos(angle) * dist) + 'px,' + (Math.sin(angle) * dist) + 'px)';
-      dot.style.opacity = '0';
-      dot.style.width = '0px';
-      dot.style.height = '0px';
-    }, 10 + i * 5);
-  });
+    var dist = effectSize * 0.48;
+    (function(d, ang) {
+      setTimeout(function() {
+        d.style.transform = 'translate(' + (Math.cos(ang) * dist) + 'px,' + (Math.sin(ang) * dist) + 'px)';
+        d.style.opacity = '0'; d.style.width = '0px'; d.style.height = '0px';
+      }, 10);
+    })(dot, angle);
+  }
 
   var cx = effectSize / 2, cy = effectSize / 2;
-  var lineAngles = [0, Math.PI/2, Math.PI, 3*Math.PI/2];
+  var lineAngles = [0, Math.PI/2, Math.PI, 3*Math.PI/2, Math.PI/4, 3*Math.PI/4, 5*Math.PI/4, 7*Math.PI/4];
   lineAngles.forEach(function(angle) {
     var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.style.position = 'absolute';
-    svg.style.left = '0';
-    svg.style.top = '0';
-    svg.style.width = effectSize + 'px';
-    svg.style.height = effectSize + 'px';
-    svg.style.overflow = 'visible';
+    svg.style.cssText = 'position:absolute;left:0;top:0;width:' + effectSize + 'px;height:' + effectSize + 'px;overflow:visible';
     var lineEl = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    var sX = cx + 5 * Math.cos(angle);
-    var sY = cy - 5 * Math.sin(angle);
-    var eX = cx + (5 + effectSize * 0.2) * Math.cos(angle);
-    var eY = cy - (5 + effectSize * 0.2) * Math.sin(angle);
-    lineEl.setAttribute('x1', sX);
-    lineEl.setAttribute('y1', sY);
-    lineEl.setAttribute('x2', eX);
-    lineEl.setAttribute('y2', eY);
-    lineEl.setAttribute('stroke', color);
-    lineEl.setAttribute('stroke-width', strokeWidth);
-    lineEl.style.transition = 'all 0.3s cubic-bezier(0.2,0.8,0.2,1)';
-    svg.appendChild(lineEl);
-    group.appendChild(svg);
+    var sX = cx + 10 * Math.cos(angle), sY = cy - 10 * Math.sin(angle);
+    var eX = cx + (10 + effectSize * 0.3) * Math.cos(angle);
+    var eY = cy - (10 + effectSize * 0.3) * Math.sin(angle);
+    lineEl.setAttribute('x1', sX); lineEl.setAttribute('y1', sY);
+    lineEl.setAttribute('x2', eX); lineEl.setAttribute('y2', eY);
+    lineEl.setAttribute('stroke', color); lineEl.setAttribute('stroke-width', strokeWidth);
+    lineEl.setAttribute('stroke-linecap', 'round');
+    lineEl.style.transition = 'all 0.4s cubic-bezier(0.2,0.8,0.2,1)';
+    svg.appendChild(lineEl); group.appendChild(svg);
     setTimeout(function() {
-      var fX = cx + (5 + effectSize * 0.2) * Math.cos(angle);
-      var fY = cy - (5 + effectSize * 0.2) * Math.sin(angle);
-      lineEl.setAttribute('x1', fX);
-      lineEl.setAttribute('y1', fY);
+      var fX = cx + (10 + effectSize * 0.3) * Math.cos(angle);
+      var fY = cy - (10 + effectSize * 0.3) * Math.sin(angle);
+      lineEl.setAttribute('x1', fX); lineEl.setAttribute('y1', fY);
       lineEl.setAttribute('stroke-width', '0');
     }, 10);
   });
 
   fx.appendChild(group);
-  setTimeout(function() { if (group.parentNode) group.parentNode.removeChild(group); }, 600);
+  setTimeout(function() { if (group.parentNode) group.parentNode.removeChild(group); }, 800);
 }
 
 function runPulse() {
@@ -381,20 +313,16 @@ function runPulse() {
   sniperBurst(rect.left + rect.width/2, rect.top + rect.height/2);
   pulseBtn.disabled = true;
   pulseBtn.textContent = 'filtering...';
-
   const noiseItems = flood.querySelectorAll('.noise-item');
   let filtered = 0;
-
-  noiseItems.forEach((item, i) => {
-    setTimeout(() => {
+  noiseItems.forEach(function(item, i) {
+    setTimeout(function() {
       item.classList.add('filtered');
       filtered++;
-      const remaining = 38 - filtered;
-      counter.innerHTML = '<span class="num">' + remaining + '</span> notifications';
+      counter.innerHTML = '<span class="num">' + (38 - filtered) + '</span> notifications';
     }, i * 40);
   });
-
-  setTimeout(() => {
+  setTimeout(function() {
     counter.innerHTML = '<span style="color:#22c55e">4</span> notifications. <span style="color:#22c55e">that matter.</span>';
     pulseBtn.style.display = 'none';
     result.classList.add('show');
@@ -404,6 +332,82 @@ function runPulse() {
 }
 
 startFlood();
+
+(function() {
+  var grid = document.getElementById('prismGrid');
+  var boxSize = 50;
+  var colors = ['rgba(34,197,94,0.3)','rgba(0,173,216,0.3)','rgba(168,85,247,0.3)','rgba(239,68,68,0.3)','rgba(99,102,241,0.3)'];
+  var lit = null;
+  function buildGrid() {
+    var w = window.innerWidth;
+    var h = Math.max(window.innerHeight, document.body.scrollHeight);
+    var cols = Math.ceil(w / boxSize), rows = Math.ceil(h / boxSize);
+    grid.innerHTML = '';
+    var plane = document.createElement('div');
+    plane.className = 'grid-plane';
+    plane.style.width = (cols * boxSize) + 'px';
+    plane.style.height = (rows * boxSize) + 'px';
+    for (var r = 0; r < rows; r++) {
+      var row = document.createElement('div');
+      row.className = 'grid-row';
+      for (var c = 0; c < cols; c++) {
+        var cell = document.createElement('div');
+        cell.className = 'grid-cell';
+        cell.style.width = boxSize + 'px';
+        cell.style.height = boxSize + 'px';
+        row.appendChild(cell);
+      }
+      plane.appendChild(row);
+    }
+    grid.appendChild(plane);
+  }
+  grid.addEventListener('pointermove', function(e) {
+    var rect = grid.getBoundingClientRect();
+    var x = e.clientX - rect.left, y = e.clientY - rect.top;
+    var col = Math.floor(x / boxSize), row = Math.floor(y / boxSize);
+    if (col < 0 || row < 0) return;
+    if (lit && lit.row === row && lit.col === col) return;
+    if (lit) {
+      lit.el.style.opacity = '0'; lit.el.style.transform = 'scale(0.5)';
+      var old = lit;
+      setTimeout(function() { if (old.el.parentNode) old.el.parentNode.removeChild(old.el); }, 1200);
+    }
+    var el = document.createElement('div');
+    el.className = 'lit-cell';
+    el.style.cssText = 'left:' + (col*boxSize) + 'px;top:' + (row*boxSize) + 'px;width:' + boxSize + 'px;height:' + boxSize + 'px;background:' + colors[Math.floor(Math.random()*colors.length)] + ';opacity:1;transform:scale(1)';
+    grid.appendChild(el);
+    lit = { row: row, col: col, el: el };
+  });
+  grid.addEventListener('pointerleave', function() {
+    if (lit) {
+      lit.el.style.opacity = '0'; lit.el.style.transform = 'scale(0.5)';
+      var old = lit;
+      setTimeout(function() { if (old.el.parentNode) old.el.parentNode.removeChild(old.el); }, 1200);
+      lit = null;
+    }
+  });
+  buildGrid();
+  var rt;
+  window.addEventListener('resize', function() { clearTimeout(rt); rt = setTimeout(buildGrid, 200); });
+})();
+
+document.addEventListener('click', function(e) {
+  var fx = document.getElementById('clickFx');
+  var colors = ['#22c55e', '#00add8', '#a855f7'];
+  var color = colors[Math.floor(Math.random() * colors.length)];
+  var x = e.clientX, y = e.clientY, sz = 80, sw = 2;
+  var g = document.createElement('div');
+  g.style.cssText = 'position:absolute;left:' + (x-sz/2) + 'px;top:' + (y-sz/2) + 'px;width:' + sz + 'px;height:' + sz + 'px';
+  for (var a = 0; a < 8; a++) {
+    var angle = a * Math.PI / 4;
+    var d = document.createElement('div');
+    d.style.cssText = 'position:absolute;left:' + (sz/2-sw/2) + 'px;top:' + (sz/2-sw/2) + 'px;width:' + sw + 'px;height:' + sw + 'px;background:' + color + ';border-radius:50%;transform:translate(0,0);transition:transform 0.3s cubic-bezier(0.2,0.8,0.2,1),opacity 0.4s ease-out 0.15s';
+    g.appendChild(d);
+    (function(dd, ang) { setTimeout(function() { dd.style.transform = 'translate(' + (Math.cos(ang)*sz*0.4) + 'px,' + (Math.sin(ang)*sz*0.4) + 'px)'; dd.style.opacity = '0'; }, 10); })(d, angle);
+  }
+  fx.appendChild(g);
+  setTimeout(function() { if (g.parentNode) g.parentNode.removeChild(g); }, 600);
+});
 </script>
 </body>
 </html>
