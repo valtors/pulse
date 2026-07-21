@@ -13,9 +13,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 .nav a { color: #888; text-decoration: none; font-size: 0.85rem; }
 .nav a:hover { color: #e5e5e5; }
 .nav .brand { font-weight: 600; color: #e5e5e5; }
-.hero { max-width: 680px; margin: 0 auto; padding: 80px 24px 60px; }
-.hero h1 { font-size: 2.8rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 16px; }
-.hero p { color: #999; font-size: 1.15rem; max-width: 520px; margin-bottom: 32px; }
+.hero { max-width: 680px; margin: 0 auto; padding: 100px 24px 60px; }
+.hero h1 { font-size: 3rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 20px; }
+.hero h1 .strike { text-decoration: line-through; text-decoration-color: #ef4444; text-decoration-thickness: 2px; color: #555; }
+.hero p { color: #999; font-size: 1.1rem; max-width: 480px; margin-bottom: 36px; }
 .terminal {
   background: #111; border: 1px solid #1a1a1a; border-radius: 8px; padding: 20px 24px;
   font-family: 'SF Mono', Monaco, monospace; font-size: 0.85rem; line-height: 1.9;
@@ -23,9 +24,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 }
 .terminal .prompt { color: #22c55e; }
 .terminal .comment { color: #555; }
-.section { max-width: 680px; margin: 0 auto; padding: 40px 24px; }
+.terminal .red { color: #ef4444; }
+.section { max-width: 680px; margin: 0 auto; padding: 48px 24px; }
 .section h2 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 20px; }
 .section p { color: #999; margin-bottom: 12px; font-size: 1rem; }
+.section .punch { color: #e5e5e5; font-size: 1.1rem; margin: 16px 0; }
 .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
 .card {
   background: #111; border: 1px solid #1a1a1a; border-radius: 8px; padding: 24px;
@@ -36,7 +39,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 .card .lang.go { color: #00add8; }
 .card p { font-size: 0.9rem; color: #888; }
 .features { margin: 24px 0; }
-.feature { padding: 16px 0; border-bottom: 1px solid #1a1a1a; }
+.feature { padding: 20px 0; border-bottom: 1px solid #1a1a1a; }
 .feature:last-child { border-bottom: none; }
 .feature h3 { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
 .feature p { font-size: 0.95rem; color: #888; }
@@ -47,7 +50,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
   border: 1px solid #1a1a1a; color: #555;
 }
 .cta { max-width: 680px; margin: 0 auto; padding: 60px 24px; border-top: 1px solid #1a1a1a; }
-.cta p { color: #999; margin-bottom: 16px; }
+.cta .punch { color: #e5e5e5; font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+.cta p { color: #999; margin-bottom: 20px; }
 .cta a {
   display: inline-block; background: #22c55e; color: #000; font-weight: 600;
   padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 0.95rem;
@@ -57,9 +61,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 .footer { max-width: 680px; margin: 0 auto; padding: 30px 24px; border-top: 1px solid #1a1a1a; }
 .footer p { color: #555; font-size: 0.8rem; }
 @media (max-width: 640px) {
-  .hero h1 { font-size: 2rem; }
+  .hero h1 { font-size: 2.2rem; }
   .cards { grid-template-columns: 1fr; }
-  .hero { padding: 48px 16px 40px; }
+  .hero { padding: 60px 16px 40px; }
   .section { padding: 32px 16px; }
   .cta { padding: 40px 16px; }
 }
@@ -73,32 +77,43 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 </nav>
 
 <div class="hero">
-  <h1>your ai forgot everything. now it doesn't.</h1>
-  <p>a personal ai agent that lives on your machine. connects to your accounts, remembers what matters, thinks with any llm. no cloud. no saas. one binary.</p>
+  <h1>your notifications are <span class="strike">fine</span> drowning you.</h1>
+  <p>38 pings a day. 29 are ci failures you already know about. 3 are mentions you'll miss. you don't have a notification problem, you have a filter problem. pulse fixes it.</p>
   <div class="terminal"><span class="prompt">$</span> pulse connect github <span class="comment">&lt;token&gt;</span>
-<span class="prompt">$</span> pulse ask <span class="comment">"what did i miss"</span>
+<span class="prompt">$</span> pulse digest
+
+<span class="red">URGENT</span>  valtors/relay - you were mentioned in #30
+<span class="red">URGENT</span>  autogen - pre-action authority discussion
+
+NEEDS    agent-orchestrator - 3 issues with activity
+NEEDS    relay - pr needs review
+
+NOISE    <span class="comment">29 items filtered. ci, status checks, automated noise.</span>
+
+<span class="prompt">$</span> pulse ask <span class="comment">"what should i work on"</span>
 <span class="prompt">$</span> pulse remember focus <span class="comment">"ship v1"</span>
-<span class="prompt">$</span> pulse serve <span class="comment"># web ui on :9090</span></div>
+<span class="prompt">$</span> pulse serve</div>
 </div>
 
 <div class="section">
-  <h2>what it does</h2>
+  <h2>what it is</h2>
+  <p class="punch">a personal ai agent that lives on your machine. not in the cloud. not on someone's server. yours.</p>
   <div class="features">
     <div class="feature">
-      <h3>remembers you</h3>
-      <p>sqlite on disk. survives restarts. it knows your focus, your projects, your context. tell it once, it knows forever.</p>
+      <h3>it remembers you</h3>
+      <p>sqlite on disk. survives restarts. it knows your focus, your projects, what you care about and what you ignore. tell it once. it knows forever. or until you tell it to forget.</p>
     </div>
     <div class="feature">
-      <h3>connects accounts</h3>
-      <p>github is wired. gmail and calendar are next. each connector feeds the same pipeline.</p>
+      <h3>it connects accounts</h3>
+      <p>github is wired. gmail and calendar are next. each connector feeds the same pipeline. add a service, pulse learns from it.</p>
     </div>
     <div class="feature">
-      <h3>thinks with llm</h3>
-      <p>bring your own key. any openai-compatible provider. without one, pattern matching. with one, it reasons.</p>
+      <h3>it thinks</h3>
+      <p>bring your own key. any openai-compatible provider. without an llm, pattern matching. with one, it reasons about your data, answers questions, writes summaries.</p>
     </div>
     <div class="feature">
-      <h3>stays local</h3>
-      <p>your data never leaves. no telemetry. no phone home. no account to create.</p>
+      <h3>it stays yours</h3>
+      <p>your data never leaves your machine. no telemetry. no phone home. no account. sqlite on disk, config in json, one binary. that's the whole thing.</p>
     </div>
   </div>
 </div>
@@ -117,7 +132,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
       <p>http server, web ui, cli, connectors. stdlib only. the hands.</p>
     </div>
   </div>
-  <p>go calls rust. they share sqlite and json. no grpc, no protobuf, no microservices.</p>
+  <p>go calls rust. they share sqlite and json. no grpc, no protobuf, no microservices. two languages because each does what it's best at. if you can't tell why that's interesting, this isn't for you.</p>
 </div>
 
 <div class="section">
@@ -131,6 +146,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 </div>
 
 <div class="cta">
+  <div class="punch">stop drowning. start shipping.</div>
   <p>open source. MIT. no paywall, no premium, no "contact sales."</p>
   <a href="https://github.com/valtors/pulse">view on github</a>
 </div>
