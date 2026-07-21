@@ -1,85 +1,80 @@
 # pulse
 
-[![Go Version](https://img.shields.io/badge/go-1.23+-00ADD8?style=flat-square)](https://go.dev/dl/)
-[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
-
 connect everything. your ai does the rest.
 
-## what
+pulse sits on your machine, connects to your accounts, reads the noise, and tells you what actually matters. 38 notifications become 3. the rest is ci failures you already know about.
 
-pulse is a personal ai agent that connects to your services and handles things for you. not a framework. not a runtime. a product.
+## architecture
 
-you connect github. you connect gmail. you connect calendar. you ask "what did i miss." pulse reads everything and tells you. you say "remember this." pulse remembers. you say "do this." pulse does it.
+two languages. one product.
 
-your data stays on your machine. single binary. no server. no account. no cloud.
+- **rust core** - the brain. filtering, memory (sqlite), llm orchestration. built with serde, rusqlite, reqwest.
+- **go shell** - the hands. http server, web ui, cli, connector management. built with stdlib only.
+
+the go binary calls the rust binary. they share a sqlite database and json config. no protobuf, no grpc, no microservices. just two processes that talk.
 
 ## install
 
 ```bash
-go install github.com/valtors/pulse/cmd/pulse@latest
+# build the rust core
+cd rust-core && cargo build --release
+cp target/release/pulse-core ~/.pulse/pulse-core
+
+# build the go shell
+cd .. && go build -o pulse ./cmd/pulse/
 ```
 
 ## use
 
 ```bash
-pulse                    # start on port 9090
-pulse -port 8080         # custom port
-pulse -data ~/.pulse      # custom data dir
+# connect github
+pulse connect github ghp_your_token
+
+# get your digest - filtered, prioritized
+pulse digest
+
+# ask anything
+pulse ask "what did i miss"
+pulse ask "what do you know"
+
+# remember things
+pulse remember focus "ship pulse v1"
+pulse memory
+
+# start the web ui
+pulse serve
+# open http://localhost:9090
+
+# configure ai (optional, enables smart summaries)
+pulse config llm https://api.openai.com/v1 sk-your-key gpt-4o-mini
 ```
 
-open http://localhost:9090. connect your services. ask.
+## how filtering works
 
-## api
+every notification gets classified:
 
-```bash
-# connect a service
-curl -X POST localhost:9090/connect \
-  -d '{"service":"github","token":"ghp_xxx"}'
+- **urgent** - you were mentioned, asked to review, or it's your PR/issue
+- **important** - activity on things you care about
+- **noise** - ci failures, status checks, automated updates
 
-# ask
-curl -X POST localhost:9090/ask \
-  -d '{"input":"what did i miss"}'
+noise is filtered out. you see what matters. 38 becomes 3.
 
-# check memory
-curl localhost:9090/memory
+## what's connected
 
-# health
-curl localhost:9090/health
-```
+- **github** - notifications, filtering, prioritization
+- **gmail** - stub (needs oauth)
+- **calendar** - stub (needs oauth)
 
-## services
+more connectors coming. the architecture is simple - implement the trait/interface, register it, done.
 
-- github: notifications, pull requests, issues, discussions
-- gmail: unread messages, snippets
-- calendar: today's events
+## philosophy
 
-more coming.
-
-## how it works
-
-```
-┌──────────────────────────────────┐
-│  pulse                            │
-│                                   │
-│  ┌──────────┐  ┌──────────────┐  │
-│  │ connect   │  │ memory       │  │
-│  │ (github,  │  │ (sqlite,     │  │
-│  │  gmail,   │  │  persistent) │  │
-│  │  calendar)│  │              │  │
-│  └──────────┘  └──────────────┘  │
-│                                   │
-│  ┌──────────┐  ┌──────────────┐  │
-│  │ agent     │  │ http api     │  │
-│  │ (do, ask, │  │ (rest, ui)   │  │
-│  │  remember)│  │              │  │
-│  └──────────┘  └──────────────┘  │
-└──────────────────────────────────┘
-```
-
-## tech
-
-go. single binary. sqlite (pure-go). no dependencies. your data on your machine.
+- local first. your data stays on your machine.
+- single binary. no docker, no kubernetes, no saas.
+- two languages because each does what it's best at.
+- boring tech. sqlite, stdlib, http.
+- no telemetry. no phone home. no account.
 
 ## license
 
-mit
+MIT
