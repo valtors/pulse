@@ -2,135 +2,182 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>pulse</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #0a0c0f; color: #c8d0d8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; }
-.hero { text-align: center; padding: 120px 24px 80px; }
-.hero h1 { font-size: 48px; font-weight: 700; color: #e8ecf0; margin-bottom: 16px; letter-spacing: -1px; }
-.hero p { font-size: 20px; color: #6b7580; max-width: 540px; margin: 0 auto 40px; }
-.hero a { display: inline-block; padding: 14px 32px; background: #1a1d23; border: 1px solid #2a2d33; border-radius: 8px; color: #e8ecf0; text-decoration: none; font-size: 15px; transition: background 0.2s; }
-.hero a:hover { background: #2a2d33; }
-.hero a + a { margin-left: 12px; }
-.badge-row { margin-top: 32px; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
-.badge { font-size: 13px; color: #4a5560; }
-.section { max-width: 680px; margin: 0 auto; padding: 60px 24px; }
-.section h2 { font-size: 24px; font-weight: 700; color: #e8ecf0; margin-bottom: 24px; }
-.feature { display: flex; gap: 16px; margin-bottom: 24px; }
-.feature-icon { flex-shrink: 0; width: 32px; height: 32px; background: #11151a; border: 1px solid #1a1d23; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #6b7580; }
-.feature-text h3 { font-size: 15px; color: #e8ecf0; margin-bottom: 4px; }
-.feature-text p { font-size: 14px; color: #6b7580; }
-.code-block { background: #11151a; border: 1px solid #1a1d23; border-radius: 8px; padding: 20px; margin: 24px 0; overflow-x: auto; }
-.code-block pre { font-size: 13px; color: #6b7580; font-family: 'SF Mono', 'Fira Code', monospace; }
-.code-block .comment { color: #3d4550; }
-.code-block .cmd { color: #e8ecf0; }
-.footer { text-align: center; padding: 40px 24px; color: #3d4550; font-size: 13px; }
-.footer a { color: #4a5560; text-decoration: none; }
-.footer a:hover { color: #6b7580; }
-.services { display: flex; justify-content: center; gap: 24px; margin-top: 48px; flex-wrap: wrap; }
-.service-tag { padding: 8px 16px; background: #11151a; border: 1px solid #1a1d23; border-radius: 6px; font-size: 14px; color: #6b7580; }
+:root {
+  --bg: #0a0c0f;
+  --surface: #11151a;
+  --border: #1a1d23;
+  --border-hi: #2a2d33;
+  --text: #e8ecf0;
+  --text-mid: #8b95a0;
+  --text-low: #4a5560;
+  --accent: #22c55e;
+  --rust: #dea584;
+  --go: #00add8;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+.container { max-width: 720px; margin: 0 auto; padding: 64px 24px 80px; }
+.logo { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+.tagline { color: var(--text-mid); font-size: 15px; margin-top: 4px; margin-bottom: 48px; }
+.section { margin-bottom: 48px; }
+.section-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-low);
+  margin-bottom: 16px;
+}
+.demo-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-mid);
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+.demo-box .urgent { color: #ef4444; }
+.demo-box .important { color: #f59e0b; }
+.demo-box .noise { color: var(--text-low); }
+.demo-box .prompt { color: var(--accent); }
+.arch-box {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.arch-card {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+}
+.arch-card h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.arch-card .lang {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+.arch-card .lang.rust { color: var(--rust); }
+.arch-card .lang.go { color: var(--go); }
+.arch-card p {
+  font-size: 13px;
+  color: var(--text-mid);
+  line-height: 1.6;
+}
+@media (max-width: 600px) {
+  .container { padding: 40px 16px 60px; }
+  .arch-box { flex-direction: column; }
+}
+.cli-line {
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: 14px;
+  padding: 8px 0;
+  color: var(--text-mid);
+}
+.cli-line .cmd { color: var(--accent); }
+.cli-line .out { color: var(--text-low); }
+a { color: var(--text); text-decoration: none; }
+a:hover { color: var(--accent); }
+.footer { margin-top: 64px; color: var(--text-low); font-size: 13px; }
 </style>
 </head>
 <body>
+<div class="container">
+  <div class="logo">pulse</div>
+  <div class="tagline">connect everything. your ai does the rest.</div>
 
-<div class="hero">
-  <h1>pulse</h1>
-  <p>connect everything. your ai does the rest.</p>
-  <a href="https://github.com/valtors/pulse">github</a>
-  <a href="#install">install</a>
-  <div class="badge-row">
-    <span class="badge">go</span>
-    <span class="badge">single binary</span>
-    <span class="badge">local-first</span>
-    <span class="badge">mit</span>
+  <div class="section">
+    <div class="section-label">the problem</div>
+    <p style="color: var(--text-mid); font-size: 16px; line-height: 1.7;">
+      you get 38 notifications. 29 are ci failures. 3 are mentions you need to see.
+      the rest is noise. you miss the 3 because the 38 drowned them.
+      pulse fixes this.
+    </p>
   </div>
-</div>
 
-<div class="section" id="install">
-  <h2>what it does</h2>
-  <div class="feature">
-    <div class="feature-icon">1</div>
-    <div class="feature-text">
-      <h3>connect your services</h3>
-      <p>github. gmail. calendar. slack. notion. one by one. your tokens stay on your machine.</p>
+  <div class="section">
+    <div class="section-label">how it works</div>
+    <div class="demo-box">
+<span class="prompt">$</span> pulse connect github ghp_xxxx
+connected github
+
+<span class="prompt">$</span> pulse digest
+
+<span class="urgent">URGENT:</span>
+  valtors/relay
+    [PullRequest] docs: add migration guide - you were mentioned
+  microsoft/autogen
+    [Discussion] Pre-action authority receipt - you were mentioned
+
+<span class="important">NEEDS ATTENTION:</span>
+  AgentWrapper/agent-orchestrator
+    [Issue] Daemon status polling - your issue has activity
+    [Issue] Superseded review runs - your issue has activity
+
+<span class="noise">NOISE: 29 items filtered (ci, status checks, automated noise)</span>
+
+38 became 4. the rest doesn't matter.
     </div>
   </div>
-  <div class="feature">
-    <div class="feature-icon">2</div>
-    <div class="feature-text">
-      <h3>ask what you missed</h3>
-      <p>pulse reads everything you ignored. 247 unread emails. 38 github notifications. today's calendar. it tells you what matters and what doesn't.</p>
+
+  <div class="section">
+    <div class="section-label">architecture</div>
+    <div class="arch-box">
+      <div class="arch-card">
+        <h3>rust core</h3>
+        <div class="lang rust">rust</div>
+        <p>the brain. filtering engine, sqlite memory, llm orchestration. serde, rusqlite, reqwest. fast, safe, no gc pauses.</p>
+      </div>
+      <div class="arch-card">
+        <h3>go shell</h3>
+        <div class="lang go">go</div>
+        <p>the hands. http server, web ui, cli, connector management. stdlib only. one binary, zero dependencies.</p>
+      </div>
     </div>
+    <p style="color: var(--text-low); font-size: 14px;">
+      two languages because each does what it's best at. the go binary calls the rust binary. they share sqlite and json. no grpc, no protobuf, no microservices.
+    </p>
   </div>
-  <div class="feature">
-    <div class="feature-icon">3</div>
-    <div class="feature-text">
-      <h3>tell it to do things</h3>
-      <p>"reply to the urgent ones." "star that repo." "remind me about this on friday." pulse does it. or tells you it can't yet.</p>
-    </div>
+
+  <div class="section">
+    <div class="section-label">commands</div>
+    <div class="cli-line"><span class="cmd">pulse connect</span> github <span class="out">&lt;token&gt;</span>  <span class="out"># connect a service</span></div>
+    <div class="cli-line"><span class="cmd">pulse digest</span>  <span class="out"># get your filtered summary</span></div>
+    <div class="cli-line"><span class="cmd">pulse ask</span> <span class="out">"what did i miss"</span>  <span class="out"># ask anything</span></div>
+    <div class="cli-line"><span class="cmd">pulse remember</span> focus <span class="out">"ship v1"</span>  <span class="out"># store memory</span></div>
+    <div class="cli-line"><span class="cmd">pulse serve</span>  <span class="out"># web ui on localhost:9090</span></div>
   </div>
-  <div class="feature">
-    <div class="feature-icon">4</div>
-    <div class="feature-text">
-      <h3>it remembers you</h3>
-      <p>what you care about. what you don't. what you asked last time. persistent memory. local. yours.</p>
-    </div>
+
+  <div class="section">
+    <div class="section-label">philosophy</div>
+    <p style="color: var(--text-mid); font-size: 15px; line-height: 1.7;">
+      local first. your data stays on your machine. single binary. no docker, no kubernetes, no saas. no telemetry. no phone home. no account. sqlite, stdlib, http. boring tech on purpose.
+    </p>
   </div>
-</div>
 
-<div class="section">
-  <h2>install</h2>
-  <div class="code-block">
-<pre><span class="comment"># install</span>
-<span class="cmd">go install github.com/valtors/pulse/cmd/pulse@latest</span>
-
-<span class="comment"># run with ai (any openai-compatible api)</span>
-<span class="cmd">PULSE_LLM_KEY=sk-xxx pulse</span>
-
-<span class="comment"># or without ai (raw data only)</span>
-<span class="cmd">pulse</span>
-
-<span class="comment"># open http://localhost:9090</span></pre>
+  <div class="footer">
+    <a href="https://github.com/valtors/pulse">github.com/valtors/pulse</a> - MIT licensed - built with AO
   </div>
 </div>
-
-<div class="section">
-  <h2>api</h2>
-  <div class="code-block">
-<pre><span class="comment"># connect github</span>
-<span class="cmd">curl -X POST localhost:9090/connect \
-  -d '{"service":"github","token":"ghp_xxx"}'</span>
-
-<span class="comment"># ask</span>
-<span class="cmd">curl -X POST localhost:9090/ask \
-  -d '{"input":"what did i miss"}'</span>
-
-<span class="comment"># memory</span>
-<span class="cmd">curl localhost:9090/memory</span></pre>
-  </div>
-</div>
-
-<div class="section">
-  <h2>services</h2>
-  <div class="services">
-    <span class="service-tag">github</span>
-    <span class="service-tag">gmail</span>
-    <span class="service-tag">calendar</span>
-    <span class="service-tag">slack (soon)</span>
-    <span class="service-tag">notion (soon)</span>
-    <span class="service-tag">discord (soon)</span>
-  </div>
-</div>
-
-<div class="section">
-  <h2>why</h2>
-  <p style="color:#6b7580;font-size:15px;">hermes and openclaw are agent frameworks for developers. pulse is a product for people. you don't write system prompts. you don't configure yaml. you connect your accounts and ask a question. the ai does the rest. your data stays on your machine. no cloud. no account. no subscription.</p>
-</div>
-
-<div class="footer">
-  <a href="https://github.com/valtors/pulse">github</a> · <a href="https://github.com/valtors">valtors</a> · mit
-</div>
-
 </body>
 </html>
