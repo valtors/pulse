@@ -2,269 +2,428 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>pulse</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  background: #060606; color: #e5e5e5; line-height: 1.7;
-  -webkit-font-smoothing: antialiased; overflow-x: hidden;
-  position: relative;
-}
-.prism-grid { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
-.prism-grid .grid-plane { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; }
-.prism-grid .grid-row { display: flex; }
-.prism-grid .grid-cell { border: 1px solid rgba(255,255,255,0.05); box-sizing: border-box; }
-.prism-grid .lit-cell { position: absolute; pointer-events: none; border-radius: 2px; transition: opacity 1.2s ease-out, transform 1.2s ease-out; }
-.click-fx { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; overflow: visible; }
-.wrap { max-width: 720px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 5; }
-nav { display: flex; justify-content: space-between; align-items: center; padding: 24px 0; }
-nav .brand { color: #e5e5e5; text-decoration: none; font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; }
-nav .links { display: flex; gap: 24px; }
-nav .links a { color: #666; text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
-nav .links a:hover { color: #e5e5e5; }
-.hero { padding: 60px 0 80px; text-align: center; }
-.hero-orb-wrap { display: flex; justify-content: center; align-items: center; margin-bottom: 40px; height: 200px; position: relative; }
-.hero-orb-wrap canvas { filter: drop-shadow(0 0 40px rgba(34,197,94,0.35)) drop-shadow(0 0 80px rgba(34,197,94,0.15)); }
-.hero-orb-wrap .orb-ring {
-  position: absolute; width: 220px; height: 220px; border-radius: 50%;
-  border: 1px solid rgba(34,197,94,0.1); animation: ring-pulse 4s ease-in-out infinite;
-}
-.hero-orb-wrap .orb-ring.r2 { width: 260px; height: 260px; animation-delay: 1s; }
-@keyframes ring-pulse { 0%,100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.1); opacity: 0.6; } }
-.hero h1 {
-  font-size: 2.8rem; font-weight: 800; letter-spacing: -0.04em;
-  line-height: 1.1; margin-bottom: 16px;
-}
-.hero h1 .strike {
-  text-decoration: line-through; text-decoration-color: #ef4444;
-  text-decoration-thickness: 2px; color: #444;
-}
-.morph-wrap {
-  display: inline-block; height: 1.3em; vertical-align: bottom;
-  position: relative; min-width: 280px;
-}
-.morph-text {
-  position: absolute; left: 0; top: 0; width: 100%;
-  font-size: 2.8rem; font-weight: 800; letter-spacing: -0.04em;
-  color: #22c55e; opacity: 0; transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2,0.8,0.2,1), filter 0.6s ease;
-  filter: blur(20px); transform: scale(1.1);
-}
-.morph-text.active { opacity: 1; filter: blur(0px); transform: scale(1); }
-.morph-text.exiting { opacity: 0; filter: blur(20px); transform: scale(0.9); }
-.hero p {
-  color: #999; font-size: 1.15rem; max-width: 480px; margin: 20px auto 0;
-}
-.section { padding: 60px 0; }
-.section-label {
-  font-size: 0.75rem; color: #22c55e; letter-spacing: 2px;
-  text-transform: uppercase; margin-bottom: 8px; font-weight: 600;
-}
-.section h2 {
-  font-size: 1.8rem; font-weight: 700; letter-spacing: -0.03em;
-  margin-bottom: 32px; line-height: 1.2;
-}
-.feature-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
-  margin-bottom: 24px;
-}
-.feature-card {
-  background: #0d0d0d; border: 1px solid #1a1a1a; border-radius: 10px;
-  padding: 24px; position: relative; overflow: hidden;
-  transition: border-color 0.3s, transform 0.3s;
-}
-.feature-card:hover { border-color: #22c55e; transform: translateY(-2px); }
-.feature-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(34,197,94,0.3), transparent);
-}
-.feature-card .orb-wrap {
-  display: flex; justify-content: center; margin-bottom: 16px; height: 100px;
-}
-.feature-card .orb-wrap canvas { filter: drop-shadow(0 0 12px currentColor); }
-.feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
-.feature-card p { color: #777; font-size: 0.9rem; line-height: 1.5; }
-.feature-card .accent { font-size: 0.7rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
-.code-block {
-  background: #0d0d0d; border: 1px solid #1a1a1a; border-radius: 8px;
-  padding: 20px 24px; margin: 20px 0;
-  font-family: 'SF Mono', Monaco, monospace; font-size: 0.85rem;
-  overflow-x: auto; box-shadow: 0 4px 30px rgba(0,0,0,0.5);
-  position: relative;
-}
-.code-block::before {
-  content: '$'; color: #22c55e; position: absolute; left: 12px; top: 20px; font-weight: 700;
-}
-.code-block .cmd { padding-left: 16px; color: #e5e5e5; }
-.code-block .comment { color: #555; display: block; padding-left: 16px; }
-.code-block .out { color: #22c55e; display: block; padding-left: 16px; }
-.arch {
-  display: flex; gap: 16px; margin: 24px 0;
-}
-.arch-card {
-  flex: 1; background: #0d0d0d; border: 1px solid #1a1a1a;
-  border-radius: 10px; padding: 24px; position: relative;
-}
-.arch-card .lang { font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
-.arch-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
-.arch-card p { color: #777; font-size: 0.85rem; }
-.arch-card .tasks { margin-top: 12px; }
-.arch-card .tasks span {
-  display: inline-block; background: #111; border: 1px solid #1a1a1a;
-  border-radius: 4px; padding: 3px 8px; font-size: 0.7rem;
-  color: #888; margin: 2px 4px 2px 0; font-family: 'SF Mono', Monaco, monospace;
-}
-.stack-grid { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0; }
-.stack-item {
-  background: #0d0d0d; border: 1px solid #1a1a1a; border-radius: 6px;
-  padding: 8px 16px; font-size: 0.8rem; color: #999;
-  font-family: 'SF Mono', Monaco, monospace;
-  transition: border-color 0.2s, color 0.2s;
-}
-.stack-item:hover { border-color: #22c55e; color: #e5e5e5; }
-.cta { text-align: center; padding: 60px 0 80px; border-top: 1px solid #1a1a1a; }
-.cta .btn {
-  display: inline-block; background: #22c55e; color: #000;
-  font-weight: 700; padding: 14px 36px; border-radius: 8px;
-  text-decoration: none; font-size: 1rem; transition: all 0.2s;
-  letter-spacing: -0.01em;
-}
-.cta .btn:hover { opacity: 0.85; transform: scale(1.03); box-shadow: 0 0 30px rgba(34,197,94,0.3); }
-.cta .sub { color: #555; font-size: 0.85rem; margin-top: 16px; }
-footer { padding: 30px 0; border-top: 1px solid #1a1a1a; text-align: center; }
-footer p { color: #444; font-size: 0.8rem; }
-@media (max-width: 640px) {
-  .hero h1, .morph-text { font-size: 2rem; }
-  .feature-grid { grid-template-columns: 1fr; }
-  .arch { flex-direction: column; }
-  .wrap { padding: 0 16px; }
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0a;--fg:#d4d4d4;--dim:#555;--accent:#22c55e;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;--purple:#a855f7;--line:#1a1a1a}
+html{scroll-behavior:smooth}
+body{font-family:'SF Mono',Monaco,'Cascadia Code','Roboto Mono',Consolas,'Courier New',monospace;background:var(--bg);color:var(--fg);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.scanline{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,0,0,0.03) 3px,rgba(0,0,0,0) 4px);mix-blend-mode:overlay}
+.crt-flicker{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:998;animation:flicker 0.15s infinite}
+@keyframes flicker{0%{opacity:0}49%{opacity:0}50%{opacity:0.008}51%{opacity:0}100%{opacity:0}}
+.wrap{max-width:680px;margin:0 auto;padding:0 20px;position:relative;z-index:5}
+.cursor{display:inline-block;width:8px;height:1.1em;background:var(--accent);vertical-align:middle;animation:blink 1s step-end infinite;margin-left:2px}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+.dim{color:var(--dim)}
+.green{color:var(--accent)}
+.red{color:var(--red)}
+.amber{color:var(--amber)}
+.blue{color:var(--blue)}
+.purple{color:var(--purple)}
+
+/* nav */
+nav{display:flex;justify-content:space-between;align-items:center;padding:28px 0 20px;font-size:0.8rem}
+nav .brand{font-weight:700;letter-spacing:0.3em;color:var(--fg)}
+nav .links{display:flex;gap:20px}
+nav .links a{color:var(--dim);text-decoration:none;transition:color 0.2s}
+nav .links a:hover{color:var(--fg)}
+
+/* terminal bar */
+.term-bar{display:flex;align-items:center;gap:6px;padding:10px 0;border-bottom:1px solid var(--line);margin-bottom:4px}
+.term-bar .dot{width:8px;height:8px;border-radius:50%}
+.term-bar .d1{background:#ff5f57}.term-bar .d2{background:#febc2e}.term-bar .d3{background:#28c840}
+.term-bar .title{margin-left:8px;font-size:0.7rem;color:var(--dim)}
+
+/* hero */
+.hero{padding:48px 0 60px}
+.hero .prompt{font-size:0.85rem;color:var(--dim);margin-bottom:20px}
+.hero h1{font-size:2.4rem;font-weight:700;letter-spacing:-0.02em;line-height:1.2;margin-bottom:8px;font-family:inherit;min-height:2.4em}
+.hero .sub{font-size:0.95rem;color:var(--dim);margin-bottom:32px;max-width:500px}
+.hero .sub .hl{color:var(--fg)}
+.hero .install{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.hero .install code{font-size:0.85rem;color:var(--accent);background:#111;padding:8px 14px;border:1px solid var(--line);border-radius:4px}
+.hero .install .copy{font-size:0.7rem;color:var(--dim);cursor:pointer;border:1px solid var(--line);padding:6px 10px;border-radius:4px;transition:all 0.2s;background:none;font-family:inherit}
+.hero .install .copy:hover{color:var(--fg);border-color:#333}
+
+/* sections */
+.section{padding:40px 0;border-top:1px solid var(--line)}
+.section .cmd{font-size:0.85rem;color:var(--dim);margin-bottom:16px}
+.section .cmd .slash{color:var(--accent)}
+.section h2{font-size:1.3rem;font-weight:600;margin-bottom:12px;letter-spacing:-0.01em}
+.section p{font-size:0.9rem;color:#999;max-width:520px;margin-bottom:8px}
+.section p .hl{color:var(--fg)}
+
+/* live demo */
+.demo{padding:40px 0;border-top:1px solid var(--line)}
+.demo .cmd{font-size:0.85rem;color:var(--dim);margin-bottom:16px}
+.demo .cmd .slash{color:var(--accent)}
+.demo-box{border:1px solid var(--line);border-radius:6px;background:#080808;overflow:hidden}
+.demo-header{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid var(--line);font-size:0.7rem;color:var(--dim)}
+.demo-header .live{color:var(--red);animation:pulse-dot 1.5s ease infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.3}}
+.demo-body{padding:14px;height:340px;overflow-y:auto;font-size:0.78rem;scrollbar-width:thin;scrollbar-color:#222 #080808}
+.demo-body::-webkit-scrollbar{width:6px}
+.demo-body::-webkit-scrollbar-thumb{background:#222}
+.demo-body::-webkit-scrollbar-track{background:#080808}
+.notif{padding:4px 0;opacity:0;transform:translateX(-8px);animation:notif-in 0.3s ease forwards;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@keyframes notif-in{to{opacity:1;transform:translateX(0)}}
+.notif .ts{color:var(--dim);margin-right:8px}
+.notif .tag{display:inline-block;width:64px;margin-right:8px;font-weight:600}
+.notif .tag.slack{color:var(--purple)}.notif .tag.github{color:var(--blue)}.notif .tag.email{color:var(--amber)}.notif .tag.ci{color:var(--red)}.notif .tag.discord{color:#5865F2}.notif .tag.calendar{color:var(--green)}
+.notif .msg{color:#888}
+.notif.filtered{opacity:0.15;text-decoration:line-through;color:#444}
+.notif.filtered .msg{text-decoration:line-through}
+.demo-footer{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-top:1px solid var(--line);font-size:0.78rem}
+.demo-footer .count{color:var(--dim)}
+.demo-footer .count .before{color:var(--red);font-weight:700}
+.demo-footer .count .after{color:var(--accent);font-weight:700}
+.demo-footer .arrow{color:var(--dim);margin:0 8px}
+.demo-btn{font-family:inherit;font-size:0.78rem;color:var(--accent);background:none;border:1px solid var(--accent);padding:5px 14px;border-radius:4px;cursor:pointer;transition:all 0.2s}
+.demo-btn:hover{background:var(--accent);color:#000}
+.demo-btn:disabled{opacity:0.4;cursor:default}
+
+/* architecture */
+.arch{padding:40px 0;border-top:1px solid var(--line)}
+.arch .cmd{font-size:0.85rem;color:var(--dim);margin-bottom:16px}
+.arch .cmd .slash{color:var(--accent)}
+.arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.arch-card{border:1px solid var(--line);border-radius:6px;padding:16px;background:#080808}
+.arch-card .lang{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;margin-bottom:6px}
+.arch-card .lang.rust{color:#ce422b}.arch-card .lang.go{color:#00add8}
+.arch-card .desc{font-size:0.78rem;color:var(--dim);line-height:1.5}
+.arch-card .tasks{margin-top:8px}
+.arch-card .task{font-size:0.72rem;color:#666;padding:2px 0}
+.arch-card .task:before{content:"+ ";color:var(--accent)}
+
+/* stack */
+.stack{padding:40px 0;border-top:1px solid var(--line)}
+.stack .cmd{font-size:0.85rem;color:var(--dim);margin-bottom:16px}
+.stack .cmd .slash{color:var(--accent)}
+.stack-list{font-size:0.82rem;line-height:2}
+.stack-list .item{color:var(--dim)}
+.stack-list .item .x{color:var(--red);margin-right:8px}
+.stack-list .item .check{color:var(--accent);margin-right:8px}
+
+/* code block */
+.code-block{background:#080808;border:1px solid var(--line);border-radius:6px;padding:14px;margin:16px 0;font-size:0.78rem;line-height:1.7;overflow-x:auto}
+.code-block .prompt{color:var(--accent)}
+.code-block .comment{color:var(--dim)}
+.code-block .out{color:var(--accent)}
+
+/* footer */
+footer{padding:40px 0 60px;border-top:1px solid var(--line);text-align:center}
+footer .brand{font-size:1.5rem;letter-spacing:0.5em;color:var(--dim);margin-bottom:12px}
+footer .clicks{font-size:0.72rem;color:#333;letter-spacing:0.3em;margin-bottom:20px}
+footer .links{display:flex;justify-content:center;gap:20px;font-size:0.8rem}
+footer .links a{color:var(--dim);text-decoration:none;transition:color 0.2s}
+footer .links a:hover{color:var(--fg)}
+footer .by{margin-top:24px;font-size:0.72rem;color:#333}
+
+/* mobile */
+@media(max-width:600px){
+.hero h1{font-size:1.8rem}
+.arch-grid{grid-template-columns:1fr}
+.hero .install{flex-direction:column;align-items:flex-start;gap:8px}
+.hero .install code{font-size:0.75rem;word-break:break-all}
+footer .brand{font-size:1.1rem;letter-spacing:0.3em}
 }
 </style>
 </head>
 <body>
-<div class="prism-grid" id="prismGrid"></div>
-<div class="click-fx" id="clickFx"></div>
+<div class="scanline"></div>
+<div class="crt-flicker"></div>
+
 <div class="wrap">
-<nav>
-  <a href="https://valtors.github.io" class="brand">valtors</a>
-  <div class="links">
-    <a href="https://github.com/valtors/pulse">github</a>
-    <a href="https://valtors.github.io/pulse/flood.html">demo</a>
+  <nav>
+    <div class="brand">P U L S E</div>
+    <div class="links">
+      <a href="#demo">demo</a>
+      <a href="#arch">arch</a>
+      <a href="https://github.com/valtors/pulse">github</a>
+    </div>
+  </nav>
+
+  <div class="term-bar">
+    <div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div>
+    <div class="title">pulse --watch</div>
   </div>
-</nav>
-<div class="hero">
-  <div class="hero-orb-wrap">
-    <div class="orb-ring"></div>
-    <div class="orb-ring r2"></div>
-    <canvas id="heroOrb" width="180" height="180"></canvas>
-  </div>
-  <h1>your ai forgot everything.<br><span class="strike">that's fine.</span></h1>
-  <div class="morph-wrap"><span class="morph-text active" id="morph0">now it doesn't.</span><span class="morph-text" id="morph1">it remembers.</span><span class="morph-text" id="morph2">it connects.</span><span class="morph-text" id="morph3">it thinks.</span></div>
-  <p>pulse connects your accounts, reads the noise, keeps what matters, and tells you in one line. 38 notifications became 4. that's it.</p>
-</div>
-<div class="section">
-  <div class="section-label">what it does</div>
-  <h2>four things. done well.</h2>
-  <div class="feature-grid">
-    <div class="feature-card">
-      <div class="orb-wrap"><canvas id="orbSearch" width="100" height="100"></canvas></div>
-      <div class="accent" style="color:#00add8">search</div>
-      <h3>it remembers you</h3>
-      <p>every conversation, every file, every decision. pulse stores context in local sqlite. your ai doesn't start from zero every morning.</p>
-    </div>
-    <div class="feature-card">
-      <div class="orb-wrap"><canvas id="orbFilter" width="100" height="100"></canvas></div>
-      <div class="accent" style="color:#de6a28">filter</div>
-      <h3>it kills noise</h3>
-      <p>34 CI failures. 2 pr reviews. 1 security alert. pulse knows which ones matter and shows you only those. the rest is gone.</p>
-    </div>
-    <div class="feature-card">
-      <div class="orb-wrap"><canvas id="orbListen" width="100" height="100"></canvas></div>
-      <div class="accent" style="color:#a855f7">listen</div>
-      <h3>it connects accounts</h3>
-      <p>github, slack, gmail. pulse reads from all of them. one inbox. one digest. one line that tells you what happened.</p>
-    </div>
-    <div class="feature-card">
-      <div class="orb-wrap"><canvas id="orbAct" width="100" height="100"></canvas></div>
-      <div class="accent" style="color:#ef4444">act</div>
-      <h3>it stays yours</h3>
-      <p>runs on your machine. your data in your sqlite. no cloud. no telemetry. no "we'll email you a link to reset your password."</p>
+
+  <div class="hero">
+    <div class="prompt">$ pulse init</div>
+    <h1 id="scramble">your ai forgot everything</h1>
+    <div class="sub">38 notifications. 4 that matter. <span class="hl">pulse</span> filters the noise so your agent sees what matters, remembers what happened, and thinks before it acts.</div>
+    <div class="install">
+      <code id="install-cmd">cargo install pulse-cli</code>
+      <button class="copy" onclick="copyCmd()">copy</button>
     </div>
   </div>
-</div>
-<div class="section">
-  <div class="section-label">architecture</div>
-  <h2>two languages. one binary.</h2>
-  <div class="arch">
-    <div class="arch-card">
-      <div class="lang" style="color:#ef4444">rust</div>
-      <h3>core</h3>
-      <p>the brain. does the heavy lifting.</p>
-      <div class="tasks">
-        <span>filtering</span><span>memory</span><span>llm</span><span>sqlite</span>
+
+  <div class="demo" id="demo">
+    <div class="cmd"><span class="slash">/</span>flood --live</div>
+    <div class="demo-box">
+      <div class="demo-header">
+        <span>notification stream</span>
+        <span class="live">[ LIVE ]</span>
       </div>
-    </div>
-    <div class="arch-card">
-      <div class="lang" style="color:#00add8">go</div>
-      <h3>shell</h3>
-      <p>the interface. talks to you and the core.</p>
-      <div class="tasks">
-        <span>http server</span><span>web ui</span><span>cli</span><span>connectors</span>
+      <div class="demo-body" id="demo-body"></div>
+      <div class="demo-footer">
+        <div class="count">
+          <span class="before" id="count-before">0</span>
+          <span class="arrow">--></span>
+          <span class="after" id="count-after">0</span>
+        </div>
+        <button class="demo-btn" id="filter-btn" onclick="runFilter()">pulse filter</button>
       </div>
     </div>
   </div>
-  <div class="code-block">
-    <div class="cmd">pulse</div>
-    <div class="comment"># starts the server on localhost:7331</div>
-    <div class="comment"># opens the web ui</div>
-    <div class="comment"># connects to your accounts</div>
-    <div class="out">4 notifications. 2 need you. 2 can wait.</div>
+
+  <div class="section">
+    <div class="cmd"><span class="slash">/</span>filter</div>
+    <h2>noise dies on contact</h2>
+    <p>slack reactions, ci retries, bot pings, auto-generated tickets. <span class="hl">pulse</span> collapses duplicates, suppresses noise patterns, and surfaces only what needs a human or an agent.</p>
+    <div class="code-block">
+<span class="prompt">$</span> pulse status
+<span class="comment"># 38 events received in 60s</span>
+<span class="comment"># 34 filtered (noise, duplicates, auto)</span>
+<span class="comment"># 4 surfaced to agent context</span>
+<span class="out">4 actionable events ready</span>
+    </div>
   </div>
-</div>
-<div class="section">
-  <div class="section-label">stack</div>
-  <h2>boring on purpose.</h2>
-  <div class="stack-grid">
-    <div class="stack-item">rust</div>
-    <div class="stack-item">go</div>
-    <div class="stack-item">sqlite</div>
-    <div class="stack-item">htmx</div>
-    <div class="stack-item">no react</div>
-    <div class="stack-item">no build step</div>
-    <div class="stack-item">no docker</div>
-    <div class="stack-item">no kubernetes</div>
-    <div class="stack-item">no saas</div>
+
+  <div class="section">
+    <div class="cmd"><span class="slash">/</span>remember</div>
+    <h2>it remembers what happened</h2>
+    <p>every event, every action, every decision. stored in <span class="hl">sqlite</span>, not in some cloud you can't see. your agent wakes up knowing what it did yesterday and why.</p>
+    <div class="code-block">
+<span class="prompt">$</span> pulse recall "last deploy"
+<span class="comment"># searching 1.2M events...</span>
+<span class="out">found: deploy v0.2.0 at 14:32 UTC</span>
+<span class="out">reason: fix memory leak in filter pipeline</span>
+<span class="out">actor: agent (pulse-cli)</span>
+    </div>
   </div>
+
+  <div class="section">
+    <div class="cmd"><span class="slash">/</span>think</div>
+    <h2>it thinks before it acts</h2>
+    <p>filtered events become agent context. <span class="hl">pulse</span> builds the prompt, calls the llm, writes the response back to memory. your agent doesn't guess. it knows.</p>
+    <div class="code-block">
+<span class="prompt">$</span> pulse think "should i escalate?"
+<span class="comment"># 4 events in context</span>
+<span class="comment"># 1.2k tokens in prompt</span>
+<span class="out">decision: escalate #critical to on-call</span>
+<span class="out">confidence: 0.91</span>
+    </div>
+  </div>
+
+  <div class="arch" id="arch">
+    <div class="cmd"><span class="slash">/</span>arch</div>
+    <h2>two binaries, one database</h2>
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="lang rust">RUST</div>
+        <div class="desc">the core. does the heavy lifting.</div>
+        <div class="tasks">
+          <div class="task">event filtering</div>
+          <div class="task">memory store (sqlite)</div>
+          <div class="task">llm inference</div>
+        </div>
+      </div>
+      <div class="arch-card">
+        <div class="lang go">GO</div>
+        <div class="desc">the shell. talks to everything.</div>
+        <div class="tasks">
+          <div class="task">http server</div>
+          <div class="task">web ui</div>
+          <div class="task">cli interface</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="cmd"><span class="slash">/</span>stack</div>
+    <div class="stack-list">
+      <div class="item"><span class="x">x</span>react</div>
+      <div class="item"><span class="x">x</span>docker</div>
+      <div class="item"><span class="x">x</span>kubernetes</div>
+      <div class="item"><span class="x">x</span>microservices</div>
+      <div class="item"><span class="x">x</span>cloud dependencies</div>
+      <div class="item"><span class="check">+</span>go stdlib</div>
+      <div class="item"><span class="check">+</span>sqlite</div>
+      <div class="item"><span class="check">+</span>rust + cargo</div>
+      <div class="item"><span class="check">+</span>one binary</div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="brand">P U L S E</div>
+    <div class="clicks">. . . . . . . . . .</div>
+    <div class="links">
+      <a href="https://github.com/valtors/pulse">github</a>
+      <a href="https://valtors.github.io/pulse/flood.html">flood demo</a>
+      <a href="https://github.com/valtors/pulse/releases">releases</a>
+    </div>
+    <div class="by">built by valtors. with ao. in the open.</div>
+  </footer>
 </div>
-<div class="cta">
-  <a href="https://github.com/valtors/pulse" class="btn">view on github</a>
-  <p class="sub">one binary. no signup. no cloud. no bullshit.</p>
-</div>
-<footer>
-  <p>built with AO. the code is silent, the output speaks.</p>
-</footer>
-</div>
+
 <script>
-(function(){function ThinkingOrb(c,s,o){o=o||{};var sz=o.size||180,sp=o.speed||1,col=o.color||[34,197,94];var ctx=c.getContext("2d"),dpr=Math.min(2,window.devicePixelRatio||1);c.width=sz*dpr;c.height=sz*dpr;c.style.width=sz+"px";c.style.height=sz+"px";function rand(n,s){var x=Math.sin(n*12.9898+s*78.233)*43758.5453;return x-Math.floor(x);}function rot(cx,cy,sx,sy,sc){var co=Math.cos(cy),si=Math.sin(cy),ca=Math.cos(cx),sa=Math.sin(cx);return function(x,y,z){var u=x*ca+z*sa,w=-x*sa+z*ca,v=y*co-w*si,t=y*si+w*co;return[sx+u*sc,sy-v*sc,t];};}function sm(n,p){return Math.pow(n/300,p||0.6);}
-function drawDots(d){d.sort(function(a,b){return a.z-b.z;});for(var i=0;i<d.length;i++){var v=d[i],al=v.a!=null?v.a:1;if(al<0.02)continue;var w=Math.min(1,Math.max(0,v.white)),b=(1-w),r=Math.round(col[0]*b+255*w*0.3),g=Math.round(col[1]*b+255*w*0.3),bl=Math.round(col[2]*b+255*w*0.3);ctx.fillStyle="rgba("+r+","+g+","+bl+","+al+")";ctx.beginPath();ctx.arc(v.x,v.y,Math.max(0.5,v.r),0,Math.PI*2);ctx.fill();}}
-function orbits(n,t){var h=n/2,sc=n/2*0.82,r=rot(t*0.12,0.3,h,h,1),m=sm(n),d=[];for(var b=0;b<12;b++){var r1=rand(b,1.7),r2=rand(b,5.2),r3=rand(b,8.9),rad=sc*(0.45+0.52*r1),az=r1*2*Math.PI,inc=Math.acos(2*r2-1),sx=Math.sin(inc)*Math.cos(az),sy=Math.cos(inc),sz=Math.sin(inc)*Math.sin(az),px=-sy,py=sx,pz=0,len=Math.max(1e-6,Math.sqrt(px*px+py*py));px/=len;py/=len;var qx=-sz*py,qy=sz*px,qz=sx*py,spd=(0.25+0.55*r3)*(r3>0.5?1:-1);for(var c=0;c<40;c++){var a=c/40*2*Math.PI,p=r((px*Math.cos(a)+qx*Math.sin(a))*rad,(py*Math.cos(a)+qy*Math.sin(a))*rad,(pz*Math.cos(a)+qz*Math.sin(a))*rad),dp=(p[2]/rad+1)/2;d.push({x:p[0],y:p[1],z:p[2],r:1.5*m,white:0.72,a:0.55*(0.3+0.7*dp)});}for(var c2=0;c2<3;c2++){var a2=t*spd+c2/3*2*Math.PI+r2*6,p2=r((px*Math.cos(a2)+qx*Math.sin(a2))*rad,(py*Math.cos(a2)+qy*Math.sin(a2))*rad,(pz*Math.cos(a2)+qz*Math.sin(a2))*rad),dp2=(p2[2]/rad+1)/2;d.push({x:p2[0],y:p2[1],z:p2[2],r:(2+2.5*dp2)*m,white:0.25-0.2*dp2});}}drawDots(d);}
-function globe(n,t){var h=n/2,sc=n/2*0.82,tilt=0.4+0.06*Math.sin(t*0.35),r=rot(t*0.5,tilt,h,h,sc),m=sm(n),sa=t*(0.5+4.08),d=[];for(var lat=0;lat<=17;lat++){var phi=-Math.PI/2+lat/17*Math.PI,cp=Math.cos(phi),sp=Math.sin(phi),k=Math.max(1,Math.round(Math.abs(cp)*44));for(var lon=0;lon<k;lon++){var th=lon/k*2*Math.PI,p=r(cp*Math.cos(th),sp,cp*Math.sin(th)),dp=(p[2]+1)/2,scn=Math.atan2(Math.sin(th+t*0.5-sa),Math.cos(th+t*0.5-sa)),si=Math.exp(-(scn*scn)/0.18)*Math.max(0,p[2]);d.push({x:p[0],y:p[1],z:p[2],r:(1+2.5*dp+2*si)*m,white:0.62-0.54*dp,a:0.45+0.55*Math.min(1,si)});}}drawDots(d);}
-var modes={working:orbits,searching:globe,listening:orbits,solving:globe},mode=modes[s]||orbits,run=false,raf=0,vis=true;function frame(){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,sz,sz);mode(sz,performance.now()/1000*sp);if(run)raf=requestAnimationFrame(frame);}function start(){if(run||!vis)return;run=true;raf=requestAnimationFrame(frame);}function stop(){run=false;cancelAnimationFrame(raf);}if("IntersectionObserver" in window){var io=new IntersectionObserver(function(e){vis=e[0].isIntersecting;if(vis&&document.visibilityState!=="hidden")start();else stop();});io.observe(c);}document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")stop();else if(vis)start();});start();}window.ThinkingOrb=ThinkingOrb;})();
-new ThinkingOrb(document.getElementById("heroOrb"), "working", { size: 180, speed: 1.5, color: [34,197,94] });
-new ThinkingOrb(document.getElementById("orbSearch"), "searching", { size: 100, speed: 2.2, color: [0,173,216] });
-new ThinkingOrb(document.getElementById("orbFilter"), "working", { size: 100, speed: 1.8, color: [222,106,40] });
-new ThinkingOrb(document.getElementById("orbListen"), "listening", { size: 100, speed: 1.6, color: [168,85,247] });
-new ThinkingOrb(document.getElementById("orbAct"), "solving", { size: 100, speed: 2.0, color: [239,68,68] });
-(function(){var words=["morph0","morph1","morph2","morph3"],cur=0;setInterval(function(){var old=document.getElementById(words[cur]);cur=(cur+1)%words.length;var next=document.getElementById(words[cur]);if(old){old.classList.remove("active");old.classList.add("exiting");}if(next){next.classList.remove("exiting");next.classList.add("active");}setTimeout(function(){if(old)old.classList.remove("exiting");},700);},2800);})();
-</script>
-<script>
-(function(){var g=document.getElementById("prismGrid");if(!g)return;var bs=50,colors=["rgba(34,197,94,0.25)","rgba(0,173,216,0.25)","rgba(168,85,247,0.25)","rgba(239,68,68,0.25)","rgba(99,102,241,0.25)","rgba(222,106,40,0.25)"],lit=null;function build(){var w=window.innerWidth,h=Math.max(window.innerHeight,document.body.scrollHeight),c=Math.ceil(w/bs),r=Math.ceil(h/bs);g.innerHTML="";var p=document.createElement("div");p.className="grid-plane";p.style.width=(c*bs)+"px";p.style.height=(r*bs)+"px";for(var i=0;i<r;i++){var row=document.createElement("div");row.className="grid-row";for(var j=0;j<c;j++){var cell=document.createElement("div");cell.className="grid-cell";cell.style.width=bs+"px";cell.style.height=bs+"px";row.appendChild(cell);}p.appendChild(row);}g.appendChild(p);}document.addEventListener("pointermove",function(e){var rect=g.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top,col=Math.floor(x/bs),row=Math.floor(y/bs);if(col<0||row<0)return;if(lit&&lit.row===row&&lit.col===col)return;if(lit){lit.el.style.opacity="0";lit.el.style.transform="scale(0.5)";var o=lit;setTimeout(function(){if(o.el.parentNode)o.el.parentNode.removeChild(o.el);},1200);}var el=document.createElement("div");el.className="lit-cell";el.style.cssText="left:"+(col*bs)+"px;top:"+(row*bs)+"px;width:"+bs+"px;height:"+bs+"px;background:"+colors[Math.floor(Math.random()*colors.length)]+";opacity:1;transform:scale(1)";g.appendChild(el);lit={row:row,col:col,el:el};});build();var rt;window.addEventListener("resize",function(){clearTimeout(rt);rt=setTimeout(build,200);});})();
-</script>
-<script>
-(function(){var fx=document.getElementById("clickFx"),colors=["#22c55e","#00add8","#a855f7","#ef4444"];document.addEventListener("click",function(e){var x=e.clientX,y=e.clientY,color=colors[Math.floor(Math.random()*colors.length)],sz=120,sw=3,g=document.createElement("div");g.style.cssText="position:absolute;left:"+(x-sz/2)+"px;top:"+(y-sz/2)+"px;width:"+sz+"px;height:"+sz+"px";for(var a=0;a<12;a++){var angle=a*Math.PI/6,dot=document.createElement("div");dot.style.cssText="position:absolute;left:"+(sz/2-sw/2)+"px;top:"+(sz/2-sw/2)+"px;width:"+sw+"px;height:"+sw+"px;background:"+color+";border-radius:50%;transform:translate(0,0);transition:transform 0.4s cubic-bezier(0.2,0.8,0.2,1),opacity 0.5s ease-out 0.2s,width 0.5s ease-out 0.2s,height 0.5s ease-out 0.2s";g.appendChild(dot);(function(d,ang){setTimeout(function(){d.style.transform="translate("+Math.cos(ang)*sz*0.45+"px,"+Math.sin(ang)*sz*0.45+"px)";d.style.opacity="0";d.style.width="0px";d.style.height="0px";},10);})(dot,angle);}var ring=document.createElement("div");ring.style.cssText="position:absolute;left:"+(sz/2-20)+"px;top:"+(sz/2-20)+"px;width:40px;height:40px;border:2px solid "+color+";border-radius:50%;opacity:0.8;transform:scale(0.3);transition:transform 0.4s cubic-bezier(0.2,0.8,0.2,1),opacity 0.4s ease-out";g.appendChild(ring);setTimeout(function(){ring.style.transform="scale(2.5)";ring.style.opacity="0";},10);fx.appendChild(g);setTimeout(function(){if(g.parentNode)g.parentNode.removeChild(g);},700);});})();
+// glyph scramble effect on headline
+(function(){
+  const el = document.getElementById('scramble');
+  const target = 'your ai forgot everything';
+  const chars = '!<>-_\\/[]{}=+*?#01ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let frame = 0;
+  const totalFrames = 80;
+
+  function scramble() {
+    let out = '';
+    for (let i = 0; i < target.length; i++) {
+      if (target[i] === ' ') { out += ' '; continue; }
+      if (frame > totalFrames - (totalFrames / target.length) * i) {
+        out += target[i];
+      } else {
+        out += chars[Math.floor(Math.random() * chars.length)];
+      }
+    }
+    el.textContent = out;
+    frame++;
+    if (frame <= totalFrames) {
+      requestAnimationFrame(scramble);
+    } else {
+      el.textContent = target;
+    }
+  }
+  setTimeout(scramble, 300);
+})();
+
+// copy command
+function copyCmd() {
+  const cmd = document.getElementById('install-cmd');
+  navigator.clipboard.writeText(cmd.textContent);
+  const btn = document.querySelector('.copy');
+  const orig = btn.textContent;
+  btn.textContent = 'copied';
+  setTimeout(() => btn.textContent = orig, 1500);
+}
+
+// live demo: flood notifications then filter
+const notifications = [
+  {tag:'slack',msg:'@here can someone review PR #42?'},
+  {tag:'github',msg:'push: valtors/pulse main a1b2c3d'},
+  {tag:'ci',msg:'build failed: test_filter.rs line 87'},
+  {tag:'slack',msg:'reacted with :+1: on message'},
+  {tag:'email',msg:'newsletter: this week in rust'},
+  {tag:'discord',msg:'user joined #general'},
+  {tag:'github',msg:'issue #12 labeled: bug'},
+  {tag:'ci',msg:'build passed: all 142 tests'},
+  {tag:'slack',msg:'@channel reminder: standup in 10'},
+  {tag:'calendar',msg:'event: weekly sync starts in 15m'},
+  {tag:'github',msg:'star added: valtors/pulse'},
+  {tag:'slack',msg:'thread reply: "looks good to me"'},
+  {tag:'email',msg:'auto-reply: out of office until monday'},
+  {tag:'ci',msg:'build failed: same error as last time'},
+  {tag:'discord',msg:'bot: daily digest posted'},
+  {tag:'github',msg:'PR #43 opened: fix memory leak'},
+  {tag:'slack',msg:'emoji added: :thumbsup:'},
+  {tag:'email',msg:'receipt: your order #8842'},
+  {tag:'github',msg:'fork created: user/pulse'},
+  {tag:'ci',msg:'deploy succeeded: v0.2.0 to prod'},
+  {tag:'calendar',msg:'event: 1:1 with @megallm'},
+  {tag:'slack',msg:'reaction: :eyes: on thread'},
+  {tag:'discord',msg:'user left #general'},
+  {tag:'email',msg:'notification: 3 people liked your post'},
+  {tag:'github',msg:'commit pushed: update README'},
+  {tag:'ci',msg:'build queued: position 4'},
+  {tag:'slack',msg:'giphy: random gif posted'},
+  {tag:'github',msg:'issue #12 assigned: @tamish560'},
+  {tag:'email',msg:'promotion: 50% off premium'},
+  {tag:'discord',msg:'role updated: @member -> @contributor'},
+  {tag:'calendar',msg:'event: quarterly review'},
+  {tag:'slack',msg:'app mention: @pulse help'},
+  {tag:'github',msg:'check suite: ruff passed'},
+  {tag:'ci',msg:'build failed: connection timeout'},
+  {tag:'email',msg:'security alert: new sign-in'},
+  {tag:'discord',msg:'message: "anyone using pulse?"'},
+  {tag:'github',msg:'PR #43 review requested'},
+  {tag:'slack',msg:'reminder: submit timesheet'},
+];
+
+const keepIdx = [2, 5, 15, 36]; // the 4 that matter
+
+function ts() {
+  const d = new Date();
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0') + ':' + String(d.getSeconds()).padStart(2,'0');
+}
+
+let demoStarted = false;
+let notifIdx = 0;
+let floodInterval = null;
+
+function startFlood() {
+  if (demoStarted) return;
+  demoStarted = true;
+  floodInterval = setInterval(() => {
+    if (notifIdx >= notifications.length) {
+      clearInterval(floodInterval);
+      document.getElementById('filter-btn').disabled = false;
+      return;
+    }
+    const n = notifications[notifIdx];
+    const body = document.getElementById('demo-body');
+    const div = document.createElement('div');
+    div.className = 'notif';
+    div.dataset.idx = notifIdx;
+    div.innerHTML = '<span class="ts">' + ts() + '</span><span class="tag ' + n.tag + '">' + n.tag + '</span><span class="msg">' + n.msg + '</span>';
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+    document.getElementById('count-before').textContent = notifIdx + 1;
+    notifIdx++;
+  }, 120);
+}
+
+function runFilter() {
+  const btn = document.getElementById('filter-btn');
+  btn.disabled = true;
+  btn.textContent = 'filtering...';
+
+  const notifs = document.querySelectorAll('.notif');
+  let filtered = 0;
+  let i = 0;
+
+  function filterNext() {
+    if (i >= notifs.length) {
+      btn.textContent = 'filtered';
+      document.getElementById('count-after').textContent = '4';
+      return;
+    }
+    const n = notifs[i];
+    const idx = parseInt(n.dataset.idx);
+    if (!keepIdx.includes(idx)) {
+      setTimeout(() => {
+        n.classList.add('filtered');
+        filtered++;
+        document.getElementById('count-after').textContent = notifs.length - filtered;
+        i++;
+        filterNext();
+      }, 30);
+    } else {
+      i++;
+      filterNext();
+    }
+  }
+  filterNext();
+}
+
+// auto-start flood when demo scrolls into view
+const demoObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) startFlood();
+  });
+}, {threshold: 0.3});
+demoObserver.observe(document.getElementById('demo'));
 </script>
 </body>
 </html>
