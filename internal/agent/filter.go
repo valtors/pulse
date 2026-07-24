@@ -16,12 +16,12 @@ const (
 )
 
 type FilteredItem struct {
-	Source     string   `json:"source"`
-	Repo       string   `json:"repo"`
-	Type       string   `json:"type"`
-	Title      string   `json:"title"`
-	Priority   string   `json:"priority"`
-	Reason     string   `json:"reason"`
+	Source   string `json:"source"`
+	Repo     string `json:"repo"`
+	Type     string `json:"type"`
+	Title    string `json:"title"`
+	Priority string `json:"priority"`
+	Reason   string `json:"reason"`
 }
 
 func priorityName(p Priority) string {

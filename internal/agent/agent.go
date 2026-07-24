@@ -69,9 +69,9 @@ func (a *Agent) Memory() *memory.Store {
 }
 
 type TaskResult struct {
-	Input    string `json:"input"`
-	Action   string `json:"action"`
-	Detail   string `json:"detail"`
+	Input  string `json:"input"`
+	Action string `json:"action"`
+	Detail string `json:"detail"`
 }
 
 func (a *Agent) Do(input string) (*TaskResult, error) {

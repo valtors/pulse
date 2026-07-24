@@ -13,11 +13,11 @@ type Store struct {
 }
 
 type Memory struct {
-	ID        int64     `json:"id"`
-	Key       string    `json:"key"`
-	Value     string    `json:"value"`
-	Category  string    `json:"category"`
-	Created   time.Time `json:"created"`
+	ID       int64     `json:"id"`
+	Key      string    `json:"key"`
+	Value    string    `json:"value"`
+	Category string    `json:"category"`
+	Created  time.Time `json:"created"`
 	Accessed time.Time `json:"accessed"`
 }
 

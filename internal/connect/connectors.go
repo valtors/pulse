@@ -73,9 +73,9 @@ func (g *GitHubConnector) Test() error {
 }
 
 type GitHubNotification struct {
-	ID        string `json:"id"`
-	Reason    string `json:"reason"`
-	Subject   struct {
+	ID      string `json:"id"`
+	Reason  string `json:"reason"`
+	Subject struct {
 		Title string `json:"title"`
 		Type  string `json:"type"`
 		URL   string `json:"url"`
@@ -141,7 +141,7 @@ func (g *GmailConnector) Test() error {
 }
 
 type GmailMessage struct {
-	ID     string `json:"id"`
+	ID      string `json:"id"`
 	Snippet string `json:"snippet"`
 }
 
@@ -201,9 +201,9 @@ func (c *CalendarConnector) Test() error {
 }
 
 type CalendarEvent struct {
-	Summary     string    `json:"summary"`
-	Start       time.Time `json:"start"`
-	Location    string    `json:"location"`
+	Summary  string    `json:"summary"`
+	Start    time.Time `json:"start"`
+	Location string    `json:"location"`
 }
 
 func (c *CalendarConnector) Today() ([]CalendarEvent, error) {
