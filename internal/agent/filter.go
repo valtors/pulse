@@ -47,24 +47,26 @@ func filterGitHub(notifs []connect.GitHubNotification) []FilteredItem {
 
 		switch n.Subject.Type {
 		case "PullRequest":
-			if n.Reason == "review_requested" || n.Reason == "mention" {
+			switch n.Reason {
+			case "review_requested", "mention":
 				item.Priority = priorityName(PriorityUrgent)
 				item.Reason = "you were mentioned or asked to review"
-			} else if n.Reason == "author" {
+			case "author":
 				item.Priority = priorityName(PriorityUrgent)
 				item.Reason = "your PR has activity"
-			} else {
+			default:
 				item.Priority = priorityName(PriorityImportant)
 				item.Reason = "pr activity"
 			}
 		case "Issue":
-			if n.Reason == "assign" || n.Reason == "mention" {
+			switch n.Reason {
+			case "assign", "mention":
 				item.Priority = priorityName(PriorityUrgent)
 				item.Reason = "you were assigned or mentioned"
-			} else if n.Reason == "author" {
+			case "author":
 				item.Priority = priorityName(PriorityImportant)
 				item.Reason = "your issue has activity"
-			} else {
+			default:
 				item.Priority = priorityName(PriorityImportant)
 				item.Reason = "issue activity"
 			}

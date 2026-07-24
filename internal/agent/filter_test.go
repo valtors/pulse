@@ -1,8 +1,9 @@
 package agent
 
 import (
-	"github.com/valtors/pulse/internal/connect"
 	"testing"
+
+	"github.com/valtors/pulse/internal/connect"
 )
 
 func mkNotif(reason, typ, title, repo string) connect.GitHubNotification {

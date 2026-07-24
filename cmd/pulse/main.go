@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -140,16 +139,4 @@ func callRust(args ...string) ([]byte, error) {
 		return out, err
 	}
 	return out, nil
-}
-
-func callRustJSON(args ...string) (map[string]interface{}, error) {
-	out, err := callRust(args...)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %s", err, string(out))
-	}
-	var result map[string]interface{}
-	if err := json.Unmarshal(out, &result); err != nil {
-		return nil, fmt.Errorf("parse: %s", string(out))
-	}
-	return result, nil
 }
