@@ -64,7 +64,7 @@ func handleConnect(w http.ResponseWriter, r *http.Request) {
 	cfg.Save("")
 	out, err := callRust("connect", req.Service, req.Token)
 	if err != nil {
-		http.Error(w, string(out), 401)
+		http.Error(w, string(out), http.StatusUnauthorized)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
