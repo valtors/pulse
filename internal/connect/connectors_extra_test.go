@@ -126,3 +126,19 @@ func TestCalendarConnector_Today_NoToken(t *testing.T) {
 		t.Error("expected error for no token")
 	}
 }
+
+func TestGitHubConnector_Notifications_EmptyToken(t *testing.T) {
+	g := &GitHubConnector{Token: ""}
+	_, err := g.Notifications(5)
+	if err == nil || err.Error() != "not connected" {
+		t.Errorf("expected not connected error, got %v", err)
+	}
+}
+
+func TestCalendarConnector_Today_EmptyToken(t *testing.T) {
+	c := &CalendarConnector{Token: ""}
+	_, err := c.Today()
+	if err == nil || err.Error() != "not connected" {
+		t.Errorf("expected not connected error, got %v", err)
+	}
+}
