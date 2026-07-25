@@ -138,3 +138,79 @@ func TestHasPriority(t *testing.T) {
 		t.Error("expected false")
 	}
 }
+
+func TestFilterGitHubMultipleItems(t *testing.T) {
+	notifs := []connect.GitHubNotification{
+		mkNotif("mention", "PullRequest", "PR1", "a/b"),
+		mkNotif("author", "Issue", "Issue1", "c/d"),
+		mkNotif("ci_activity", "CheckSuite", "CI", "e/f"),
+		mkNotif("release", "Release", "v1.0", "g/h"),
+	}
+	items := filterGitHub(notifs)
+	if len(items) != 4 {
+		t.Fatalf("expected 4, got %d", len(items))
+	}
+	if items[0].Priority != "urgent" {
+		t.Errorf("expected urgent, got %s", items[0].Priority)
+	}
+	if items[1].Priority != "important" {
+		t.Errorf("expected important for author issue, got %s", items[1].Priority)
+	}
+	if items[2].Priority != "noise" {
+		t.Errorf("expected noise, got %s", items[2].Priority)
+	}
+	if items[3].Priority != "important" {
+		t.Errorf("expected important, got %s", items[3].Priority)
+	}
+}
+
+func TestFormatFilteredOnlyNoise(t *testing.T) {
+	items := []FilteredItem{
+		{Source: "github", Repo: "x/y", Type: "CheckSuite", Title: "CI", Priority: "noise", Reason: "ci status"},
+	}
+	result := formatFiltered(items)
+	if result == "" {
+		t.Error("expected non-empty")
+	}
+}
+
+func TestFormatFilteredImportantOnly(t *testing.T) {
+	items := []FilteredItem{
+		{Source: "github", Repo: "x/y", Type: "Release", Title: "v1.0", Priority: "important", Reason: "new release"},
+	}
+	result := formatFiltered(items)
+	if result == "" {
+		t.Error("expected non-empty")
+	}
+	if result == "nothing to report. you're caught up." {
+		t.Error("should not be caught up")
+	}
+}
+
+func TestCountPriorityAllZero(t *testing.T) {
+	c := countPriority(nil)
+	if c["urgent"] != 0 || c["important"] != 0 || c["noise"] != 0 {
+		t.Error("expected all zeros")
+	}
+}
+
+func TestGroupByRepoEmpty(t *testing.T) {
+	g := groupByRepo(nil)
+	if len(g) != 0 {
+		t.Errorf("expected empty, got %d", len(g))
+	}
+}
+
+func TestHasPriorityEmpty(t *testing.T) {
+	if hasPriority(nil, PriorityUrgent) {
+		t.Error("expected false for empty")
+	}
+}
+
+func TestFormatPriorityEmpty(t *testing.T) {
+	items := []FilteredItem{}
+	result := formatPriority(items, PriorityUrgent, "URGENT")
+	if result == "" {
+		t.Error("expected non-empty")
+	}
+}
