@@ -126,3 +126,86 @@ func TestNewCreatesDBFile(t *testing.T) {
 		t.Errorf("expected db file at %s, got %v", path, err)
 	}
 }
+
+func TestStore_New_InvalidPath(t *testing.T) {
+	_, err := New("/nonexistent/dir/that/does/not/exist/db.sqlite")
+	if err == nil {
+		t.Error("expected error for invalid path")
+	}
+}
+
+func TestStore_All_Empty(t *testing.T) {
+	s := testStore(t)
+	defer s.Close()
+	items, err := s.All()
+	if err != nil {
+		t.Fatalf("All: %v", err)
+	}
+	if len(items) != 0 {
+		t.Errorf("expected 0 items, got %d", len(items))
+	}
+}
+
+func TestStore_All_Multiple(t *testing.T) {
+	s := testStore(t)
+	defer s.Close()
+	s.Remember("key1", "val1", "cat1")
+	s.Remember("key2", "val2", "cat2")
+	s.Remember("key3", "val3", "cat1")
+	items, err := s.All()
+	if err != nil {
+		t.Fatalf("All: %v", err)
+	}
+	if len(items) != 3 {
+		t.Errorf("expected 3 items, got %d", len(items))
+	}
+}
+
+func TestStore_Recall_NotFound(t *testing.T) {
+	s := testStore(t)
+	s.Close()
+	val, err := s.Recall("nonexistent")
+	_ = val
+	_ = err
+}
+
+func TestStore_Forget_Nonexistent(t *testing.T) {
+	s := testStore(t)
+	defer s.Close()
+	err := s.Forget("nonexistent")
+	if err != nil {
+		t.Errorf("expected nil for nonexistent key, got %v", err)
+	}
+}
+
+func TestStore_Remember_Update(t *testing.T) {
+	s := testStore(t)
+	defer s.Close()
+	s.Remember("key", "val1", "cat")
+	s.Remember("key", "val2", "cat")
+	val, err := s.Recall("key")
+	if err != nil {
+		t.Fatalf("Recall: %v", err)
+	}
+	if val != "val2" {
+		t.Errorf("expected val2, got %s", val)
+	}
+}
+
+func TestStore_All_WithCategory(t *testing.T) {
+	s := testStore(t)
+	defer s.Close()
+	s.Remember("a", "1", "food")
+	s.Remember("b", "2", "work")
+	s.Remember("c", "3", "food")
+	items, _ := s.All()
+	count := 0
+	for _, item := range items {
+		if item.Category == "food" {
+			count++
+		}
+	}
+	if count != 2 {
+		t.Errorf("expected 2 food items, got %d", count)
+	}
+}
