@@ -2,6 +2,11 @@
 
 # pulse
 
+[![CI](https://github.com/valtors/pulse/actions/workflows/ci.yml/badge.svg)](https://github.com/valtors/pulse/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-0F172A?style=flat-square)](LICENSE)
+[![Go](https://img.shields.io/badge/go-1.23+-00ADD8?style=flat-square)](https://go.dev/)
+[![tests](https://img.shields.io/badge/tests-118-green?style=flat-square)]()
+
 your notifications are ~~fine~~ drowning you.
 
 a personal ai agent that lives on your machine. not in the cloud. not on someone's server. yours.
@@ -24,6 +29,17 @@ a personal ai agent that lives on your machine. not in the cloud. not on someone
 - **connects accounts** - github is wired. gmail and calendar are next. each connector feeds the same pipeline.
 - **thinks** - bring your own key. any openai-compatible provider. without an llm, pattern matching. with one, it reasons.
 - **stays yours** - your data never leaves. no telemetry. no phone home. no account. sqlite, json, one binary.
+
+## why not just X
+
+| | slack notifications | gmail filters | pulse |
+|---|---|---|---|
+| learns what you care about | no | no | yes |
+| works across services | no, siloed | gmail only | github + gmail + calendar |
+| shows you less, not more | no | no | yes |
+| runs on your machine | no | no | yes |
+| works without an llm | n/a | n/a | yes (pattern mode) |
+| remembers context | no | no | yes (sqlite) |
 
 ## architecture
 
@@ -75,6 +91,14 @@ pulse serve
 ```
 
 digest at the top. ask anything. connect services. memory persists across restarts.
+
+## tests
+
+118 tests. 54.1% coverage. all pass.
+
+```bash
+go test ./... -count=1
+```
 
 ## stack
 
