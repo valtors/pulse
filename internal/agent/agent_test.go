@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/valtors/pulse/internal/memory"
@@ -77,14 +78,6 @@ func TestAgent_Do_NoConnections(t *testing.T) {
 	}
 }
 
-func TestAgent_Do_RememberCommand(t *testing.T) {
-	a := newTestAgent(t)
-	task, _ := a.Do("remember that I like pizza")
-	if task != nil {
-		t.Log("Do returned non-nil task")
-	}
-}
-
 func TestAgent_Do_StatusQuery(t *testing.T) {
 	a := newTestAgent(t)
 	a.Do("remember that I like pizza")
@@ -101,4 +94,93 @@ func TestAgent_Do_EmptyInput(t *testing.T) {
 		t.Logf("Do returned error for empty input: %v", err)
 	}
 	_ = task
+}
+
+func TestAgent_Do_SummaryQuery(t *testing.T) {
+	a := newTestAgent(t)
+	task, _ := a.Do("what did i miss?")
+	if task == nil {
+		t.Fatal("expected non-nil task")
+	}
+	if task.Action != "summarize" {
+		t.Errorf("expected summarize, got %s", task.Action)
+	}
+}
+
+func TestAgent_Do_RecallQuery(t *testing.T) {
+	a := newTestAgent(t)
+	a.Memory().Remember("food", "pizza", "preference")
+	task, _ := a.Do("what do you know about me?")
+	if task == nil {
+		t.Fatal("expected non-nil task")
+	}
+	if task.Action != "recall" {
+		t.Errorf("expected recall, got %s", task.Action)
+	}
+	if !strings.Contains(task.Detail, "pizza") {
+		t.Errorf("expected pizza in detail, got %s", task.Detail)
+	}
+}
+
+func TestAgent_Do_UnknownQuery(t *testing.T) {
+	a := newTestAgent(t)
+	task, _ := a.Do("fly to the moon")
+	if task == nil {
+		t.Fatal("expected non-nil task")
+	}
+	if task.Action != "unknown" {
+		t.Errorf("expected unknown, got %s", task.Action)
+	}
+}
+
+func TestAgent_Do_RememberCommand(t *testing.T) {
+	a := newTestAgent(t)
+	task, _ := a.Do("remember that my favorite color is blue")
+	if task == nil {
+		t.Fatal("expected non-nil task")
+	}
+}
+
+func TestAgent_Do_ForgetCommand(t *testing.T) {
+	a := newTestAgent(t)
+	a.Memory().Remember("color", "blue", "preference")
+	task, _ := a.Do("forget color")
+	if task == nil {
+		t.Fatal("expected non-nil task")
+	}
+}
+
+func TestAgent_Do_ConnectGmail(t *testing.T) {
+	a := newTestAgent(t)
+	task, _ := a.Do("connect gmail")
+	if task == nil {
+		t.Fatal("expected non-nil task")
+	}
+}
+
+func TestAgent_Do_ConnectCalendar(t *testing.T) {
+	a := newTestAgent(t)
+	task, _ := a.Do("connect calendar")
+	if task == nil {
+		t.Fatal("expected non-nil task")
+	}
+}
+
+func TestAgent_gatherContextRaw(t *testing.T) {
+	a := newTestAgent(t)
+	ctx := a.gatherContextRaw()
+	if ctx == "" {
+		t.Log("gatherContextRaw returned empty (expected without connections)")
+	}
+}
+
+func TestAgent_gatherContext(t *testing.T) {
+	a := newTestAgent(t)
+	ctx, err := a.gatherContext()
+	if err != nil {
+		t.Logf("gatherContext returned error (expected without connections): %v", err)
+	}
+	if ctx != "" {
+		t.Logf("gatherContext returned: %s", ctx)
+	}
 }
