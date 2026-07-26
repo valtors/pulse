@@ -110,6 +110,12 @@ every notification tool shows you more. inbox, timeline, unread count. none of t
 
 and it's yours. not a saas. not a freemium tier. not a data pipeline to someone's dashboard. your agent, your data, your machine.
 
+## contributing
+
+see [CONTRIBUTING.md](CONTRIBUTING.md). we welcome contributions of all kinds - bug fixes, new patterns, transport support, docs.
+
+good first issues are labeled `good first issue`.
+
 ## license
 
 MIT
