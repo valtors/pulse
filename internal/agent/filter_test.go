@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/valtors/pulse/internal/connect"
@@ -212,5 +213,99 @@ func TestFormatPriorityEmpty(t *testing.T) {
 	result := formatPriority(items, PriorityUrgent, "URGENT")
 	if result == "" {
 		t.Error("expected non-empty")
+	}
+}
+
+func TestFilterGitHubDiscussionMention(t *testing.T) {
+	items := filterGitHub([]connect.GitHubNotification{
+		mkNotif("mention", "Discussion", "roadmap talk", "valtors/relay"),
+	})
+	if len(items) != 1 {
+		t.Fatalf("expected 1 item, got %d", len(items))
+	}
+	if items[0].Priority != "urgent" {
+		t.Errorf("expected urgent, got %s", items[0].Priority)
+	}
+}
+
+func TestFilterGitHubDiscussionOther(t *testing.T) {
+	items := filterGitHub([]connect.GitHubNotification{
+		mkNotif("subscribed", "Discussion", "random", "valtors/relay"),
+	})
+	if len(items) != 1 {
+		t.Fatalf("expected 1 item, got %d", len(items))
+	}
+	if items[0].Priority != "important" {
+		t.Errorf("expected important, got %s", items[0].Priority)
+	}
+}
+
+func TestFilterGitHubIssueAuthor(t *testing.T) {
+	items := filterGitHub([]connect.GitHubNotification{
+		mkNotif("author", "Issue", "bug", "valtors/relay"),
+	})
+	if len(items) != 1 {
+		t.Fatalf("expected 1 item, got %d", len(items))
+	}
+	if items[0].Priority != "important" {
+		t.Errorf("expected important, got %s", items[0].Priority)
+	}
+}
+
+func TestFilterGitHubIssueDefault(t *testing.T) {
+	items := filterGitHub([]connect.GitHubNotification{
+		mkNotif("subscribed", "Issue", "bug", "valtors/relay"),
+	})
+	if len(items) != 1 {
+		t.Fatalf("expected 1 item, got %d", len(items))
+	}
+	if items[0].Priority != "important" {
+		t.Errorf("expected important, got %s", items[0].Priority)
+	}
+}
+
+func TestFilterGitHubPullRequestDefault(t *testing.T) {
+	items := filterGitHub([]connect.GitHubNotification{
+		mkNotif("subscribed", "PullRequest", "pr", "valtors/relay"),
+	})
+	if len(items) != 1 {
+		t.Fatalf("expected 1 item, got %d", len(items))
+	}
+	if items[0].Priority != "important" {
+		t.Errorf("expected important, got %s", items[0].Priority)
+	}
+}
+
+func TestFilterGitHubUnknownType(t *testing.T) {
+	items := filterGitHub([]connect.GitHubNotification{
+		mkNotif("whatever", "Unknown", "???", "valtors/relay"),
+	})
+	if len(items) != 1 {
+		t.Fatalf("expected 1 item, got %d", len(items))
+	}
+	if items[0].Priority != "noise" {
+		t.Errorf("expected noise, got %s", items[0].Priority)
+	}
+	if items[0].Reason != "whatever" {
+		t.Errorf("expected reason 'whatever', got %s", items[0].Reason)
+	}
+}
+
+func TestFormatFilteredAllPriorities(t *testing.T) {
+	items := []FilteredItem{
+		{Source: "github", Repo: "a/b", Title: "urgent", Priority: "urgent"},
+		{Source: "github", Repo: "a/b", Title: "important", Priority: "important"},
+		{Source: "github", Repo: "a/b", Title: "noise1", Priority: "noise"},
+		{Source: "github", Repo: "a/b", Title: "noise2", Priority: "noise"},
+	}
+	out := formatFiltered(items)
+	if !strings.Contains(out, "URGENT") {
+		t.Error("expected URGENT section")
+	}
+	if !strings.Contains(out, "NEEDS ATTENTION") {
+		t.Error("expected NEEDS ATTENTION section")
+	}
+	if !strings.Contains(out, "NOISE: 2") {
+		t.Error("expected NOISE: 2")
 	}
 }
