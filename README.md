@@ -5,7 +5,7 @@
 [![CI](https://github.com/valtors/pulse/actions/workflows/ci.yml/badge.svg)](https://github.com/valtors/pulse/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0F172A?style=flat-square)](LICENSE)
 [![Go](https://img.shields.io/badge/go-1.23+-00ADD8?style=flat-square)](https://go.dev/)
-[![tests](https://img.shields.io/badge/tests-118-green?style=flat-square)](https://github.com/valtors/pulse)
+[![tests](https://img.shields.io/badge/tests-123-green?style=flat-square)](https://github.com/valtors/pulse)
 
 your notifications are ~~fine~~ drowning you.
 
@@ -94,7 +94,7 @@ digest at the top. ask anything. connect services. memory persists across restar
 
 ## tests
 
-118 tests. 55.8% coverage. all pass.
+123 tests. 58.1% coverage. all pass.
 
 ```bash
 go test ./... -count=1
