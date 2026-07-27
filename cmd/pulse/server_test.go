@@ -96,3 +96,51 @@ func TestHandleUI_NotFound(t *testing.T) {
 		t.Errorf("expected 404, got %d", w.Code)
 	}
 }
+
+func TestHandleDigest(t *testing.T) {
+	req := httptest.NewRequest("GET", "/digest", nil)
+	w := httptest.NewRecorder()
+	handleDigest(w, req)
+	if w.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", w.Code)
+	}
+}
+
+func TestHandleConnect_ValidJSON(t *testing.T) {
+	body := `{"service":"github","token":"test-token"}`
+	req := httptest.NewRequest("POST", "/connect", strings.NewReader(body))
+	w := httptest.NewRecorder()
+	handleConnect(w, req)
+	if w.Code == http.StatusMethodNotAllowed {
+		t.Fatal("should not get 405 for POST")
+	}
+}
+
+func TestHandleAsk_ValidJSON(t *testing.T) {
+	body := `{"input":"what is up"}`
+	req := httptest.NewRequest("POST", "/ask", strings.NewReader(body))
+	w := httptest.NewRecorder()
+	handleAsk(w, req)
+	if w.Code == http.StatusMethodNotAllowed {
+		t.Fatal("should not get 405 for POST")
+	}
+}
+
+func TestHandleMemory_DeleteWithKey(t *testing.T) {
+	req := httptest.NewRequest("DELETE", "/memory?key=test", nil)
+	w := httptest.NewRecorder()
+	handleMemory(w, req)
+	if w.Code != http.StatusNoContent {
+		t.Errorf("expected 204, got %d", w.Code)
+	}
+}
+
+func TestHandleMemory_PutWithBody(t *testing.T) {
+	body := `{"key":"test","value":"hello"}`
+	req := httptest.NewRequest("PUT", "/memory", strings.NewReader(body))
+	w := httptest.NewRecorder()
+	handleMemory(w, req)
+	if w.Code == http.StatusMethodNotAllowed {
+		t.Fatal("should not get 405 for PUT")
+	}
+}
